@@ -15,6 +15,7 @@ function WorkspaceConsumer() {
     selectStyleState,
     updateComponentContent,
     updateComponentStyle,
+    updateComponentLayout,
   } = useWorkspace();
 
   return (
@@ -24,6 +25,9 @@ function WorkspaceConsumer() {
       <p data-testid="active-style-state">{activeStyleState}</p>
 
       <p data-testid="card-title">{workspace.components.card.content.title}</p>
+      <p data-testid="card-layout">
+        {workspace.components.card.layout ?? "top"}
+      </p>
 
       <p data-testid="hover-background">
         {workspace.components.card.styles.hover.backgroundColor ?? ""}
@@ -33,6 +37,9 @@ function WorkspaceConsumer() {
         onClick={() => updateComponentContent("card", "title", "Saved title")}
       >
         Update card title
+      </button>
+      <button onClick={() => updateComponentLayout("card", "left")}>
+        Update card layout
       </button>
 
       <button
@@ -131,5 +138,28 @@ describe("WorkspaceContext", () => {
     expect(screen.getByTestId("active-style-state")).toHaveTextContent(
       "normal",
     );
+  });
+  it("updates the Card layout and saves it to LocalStorage", async () => {
+    const user = userEvent.setup();
+
+    const { unmount } = renderWorkspace();
+
+    await user.click(
+      screen.getByRole("button", { name: "Update card layout" }),
+    );
+
+    expect(screen.getByTestId("card-layout")).toHaveTextContent("left");
+
+    const savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
+    );
+
+    expect(savedWorkspace.components.card.layout).toBe("left");
+
+    unmount();
+
+    renderWorkspace();
+
+    expect(screen.getByTestId("card-layout")).toHaveTextContent("left");
   });
 });

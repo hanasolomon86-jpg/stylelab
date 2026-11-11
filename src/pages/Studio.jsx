@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 
 import { useWorkspace } from "../hooks/useWorkspace";
+import Card from "../components/Card";
 import { COMPONENT_IDS, STYLE_STATES } from "../reducers/workspaceReducer";
 
 const COMPONENT_CONTENT_FIELDS = {
@@ -38,17 +39,24 @@ const STYLE_FIELDS = [
   },
 ];
 
-function ComponentPreview({ componentId, content, styles }) {
+function ComponentPreview({
+  componentId,
+  content,
+  styles,
+  styleState,
+  layout,
+}) {
   if (componentId === "card") {
     return (
-      <article
-        className="component-preview"
-        aria-label="Card preview"
-        style={styles}
-      >
-        <h3>{content.title}</h3>
-        <p>{content.description}</p>
-      </article>
+      <Card
+        imageId={content.imageId}
+        title={content.title}
+        description={content.description}
+        layout={layout}
+        styles={styles}
+        styleState={styleState}
+        showImagePlaceholder
+      />
     );
   }
 
@@ -86,6 +94,7 @@ function Studio() {
     selectComponent,
     selectStyleState,
     updateComponentContent,
+    updateComponentLayout,
     updateComponentStyle,
   } = useWorkspace();
 
@@ -168,6 +177,25 @@ function Studio() {
             ),
           )}
 
+          {selectedComponent === "card" && (
+            <>
+              <h3>Layout</h3>
+
+              <label htmlFor="card-layout-select">Image layout</label>
+
+              <select
+                id="card-layout-select"
+                value={selectedComponentData.layout ?? "top"}
+                onChange={(event) =>
+                  updateComponentLayout("card", event.target.value)
+                }
+              >
+                <option value="top">Image on top</option>
+                <option value="left">Image on left</option>
+              </select>
+            </>
+          )}
+
           <h3>Styles</h3>
 
           {STYLE_FIELDS.map(({ property, label, placeholder }) => (
@@ -199,6 +227,8 @@ function Studio() {
             componentId={selectedComponent}
             content={selectedComponentData.content}
             styles={currentStyles}
+            styleState={activeStyleState}
+            layout={selectedComponentData.layout ?? "top"}
           />
         </article>
 

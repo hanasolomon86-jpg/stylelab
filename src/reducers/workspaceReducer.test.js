@@ -83,6 +83,52 @@ describe('workspaceReducer', () => {
         expect(newState).toBe(initialState)
     })
 
+
+    it('updates the Card layout without mutating the original state', () => {
+        const initialState = createInitialWorkspace()
+
+        const newState = workspaceReducer(initialState, {
+            type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_LAYOUT,
+            payload: {
+                componentId: 'card',
+                layout: 'left',
+            },
+        })
+
+        expect(newState.components.card.layout).toBe('left')
+        expect(initialState.components.card.layout).toBe('top')
+        expect(newState.components.button).toBe(initialState.components.button)
+    })
+
+    it('ignores an invalid Card layout', () => {
+        const initialState = createInitialWorkspace()
+
+        const newState = workspaceReducer(initialState, {
+            type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_LAYOUT,
+            payload: {
+                componentId: 'card',
+                layout: 'diagonal',
+            },
+        })
+
+        expect(newState).toBe(initialState)
+    })
+
+    it('ignores layout updates for components other than Card', () => {
+        const initialState = createInitialWorkspace()
+
+        const newState = workspaceReducer(initialState, {
+            type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_LAYOUT,
+            payload: {
+                componentId: 'button',
+                layout: 'left',
+            },
+        })
+
+        expect(newState).toBe(initialState)
+    })
+
+
     it('ignores unknown actions', () => {
         const initialState = createInitialWorkspace()
 

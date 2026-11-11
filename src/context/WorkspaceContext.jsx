@@ -60,6 +60,16 @@ export function WorkspaceProvider({ children }) {
     });
   }
 
+  function updateComponentLayout(componentId, layout) {
+    dispatch({
+      type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_LAYOUT,
+      payload: {
+        componentId,
+        layout,
+      },
+    });
+  }
+
   const contextValue = {
     workspace,
     selectedComponent,
@@ -68,6 +78,7 @@ export function WorkspaceProvider({ children }) {
     selectStyleState,
     updateComponentContent,
     updateComponentStyle,
+    updateComponentLayout,
   };
 
   return (
