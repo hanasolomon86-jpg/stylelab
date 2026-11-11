@@ -76,6 +76,48 @@ describe('workspaceStorage', () => {
         )
     })
 
+    it('saves and loads the selected Card layout', () => {
+        const workspace = createInitialWorkspace();
+        workspace.components.card.layout = 'left';
+
+        expect(saveWorkspace(workspace)).toBe(true);
+        expect(loadWorkspace().components.card.layout).toBe('left');
+    });
+
+    it('uses the top layout when loading an older workspace without layout', () => {
+        const workspace = createInitialWorkspace();
+        delete workspace.components.card.layout;
+
+        localStorage.setItem(
+            WORKSPACE_STORAGE_KEY,
+            JSON.stringify(workspace),
+        );
+
+        const loadedWorkspace = loadWorkspace();
+
+        expect(loadedWorkspace.components.card.layout).toBe('top');
+    });
+
+    it('preserves existing Card data when adding the default layout', () => {
+        const workspace = createInitialWorkspace();
+        workspace.components.card.content.title = 'My Product';
+        workspace.components.card.content.description = 'Product description';
+        delete workspace.components.card.layout;
+
+        localStorage.setItem(
+            WORKSPACE_STORAGE_KEY,
+            JSON.stringify(workspace),
+        );
+
+        const loadedWorkspace = loadWorkspace();
+
+        expect(loadedWorkspace.components.card.layout).toBe('top');
+        expect(loadedWorkspace.components.card.content.title).toBe('My Product');
+        expect(loadedWorkspace.components.card.content.description).toBe(
+            'Product description',
+        );
+    });
+
     it('handles storage errors when saving', () => {
         const unavailableStorage = {
             setItem() {

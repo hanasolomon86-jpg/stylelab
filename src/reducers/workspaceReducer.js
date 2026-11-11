@@ -12,6 +12,7 @@ export const STYLE_STATES = [
 export const WORKSPACE_ACTIONS = {
     UPDATE_COMPONENT_CONTENT: 'UPDATE_COMPONENT_CONTENT',
     UPDATE_COMPONENT_STYLE: 'UPDATE_COMPONENT_STYLE',
+    UPDATE_COMPONENT_LAYOUT: 'UPDATE_COMPONENT_LAYOUT',
 }
 
 const createEmptyStyles = () => ({
@@ -28,6 +29,7 @@ export function createInitialWorkspace() {
 
         components: {
             card: {
+                layout: 'top',
                 content: {
                     title: 'Product Title',
                     description: 'Product description',
@@ -118,6 +120,28 @@ export function workspaceReducer(state, action) {
                                 [property]: value,
                             },
                         },
+                    },
+                },
+            }
+        }
+
+        case WORKSPACE_ACTIONS.UPDATE_COMPONENT_LAYOUT: {
+            const { componentId, layout } = action.payload
+
+            if (
+                componentId !== 'card' ||
+                !['top', 'left'].includes(layout)
+            ) {
+                return state
+            }
+
+            return {
+                ...state,
+                components: {
+                    ...state.components,
+                    card: {
+                        ...state.components.card,
+                        layout,
                     },
                 },
             }
