@@ -1,30 +1,95 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import App from "./App";
 
-describe("App component", () => {
-  it("renders the main heading", () => {
-    render(<App />);
+function renderWithRouter(initialRoute = "/") {
+  return render(
+    <MemoryRouter initialEntries={[initialRoute]}>
+      <App />
+    </MemoryRouter>,
+  );
+}
+
+describe("StyleLab routing", () => {
+  it("renders the Home page at the root route", () => {
+    renderWithRouter("/");
 
     expect(
-      screen.getByRole("heading", { name: "Get started" }),
+      screen.getByRole("heading", {
+        name: "Design. Preview. Generate.",
+      }),
     ).toBeInTheDocument();
   });
 
-  it("increments the counter when the user clicks the button", async () => {
+  it("navigates from Home to Studio", async () => {
     const user = userEvent.setup();
 
-    render(<App />);
+    renderWithRouter("/");
 
-    const button = screen.getByRole("button", {
-      name: "Count is 0",
-    });
-
-    await user.click(button);
+    await user.click(
+      screen.getByRole("link", {
+        name: "Start Creating",
+      }),
+    );
 
     expect(
-      screen.getByRole("button", { name: "Count is 1" }),
+      screen.getByRole("heading", {
+        name: "Studio",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("allows navigation from Studio back to Home", async () => {
+    const user = userEvent.setup();
+
+    renderWithRouter("/studio");
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Studio",
+      }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("link", {
+        name: "Home",
+      }),
+    );
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Design. Preview. Generate.",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders the Not Found page for unknown routes", () => {
+    renderWithRouter("/unknown");
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Page Not Found",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("provides a link back to Home from the Not Found page", async () => {
+    const user = userEvent.setup();
+
+    renderWithRouter("/unknown");
+
+    await user.click(
+      screen.getByRole("link", {
+        name: "Back to Home",
+      }),
+    );
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Design. Preview. Generate.",
+      }),
     ).toBeInTheDocument();
   });
 });
