@@ -1,16 +1,119 @@
-# React + Vite
+# StyleLab
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Design. Preview. Generate.**
 
-Currently, two official plugins are available:
+StyleLab is a visual UI component design studio built with React. It allows users to customize UI components, preview their appearance and generate reusable React code.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Project Status
 
-## React Compiler
+The project is currently under development.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Planned Features
 
-## Expanding the ESLint configuration
+- Visual customization of Card, Button and Input components.
+- Glassmorphism and Neumorphism design effects.
+- Independent customization of component states.
+- Live component preview.
+- Desktop, Tablet and Mobile preview modes.
+- Preset design templates.
+- Automatic workspace saving using LocalStorage.
+- Code generation in JSX, CSS and Tailwind CSS.
+- Reusable React components with Props.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Technology Stack
+
+- React
+- JavaScript
+- Vite
+- React Router
+- CSS
+- Tailwind CSS 4
+- Lucide React
+- Vitest
+- React Testing Library
+- npm
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js
+- npm
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/hanasolomon86-jpg/stylelab.git
+cd stylelab
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open the local URL displayed in the terminal.
+
+## Available Scripts
+
+| Command                 | Description                              |
+| ----------------------- | ---------------------------------------- |
+| `npm run dev`           | Start the development server             |
+| `npm run build`         | Build the application for production     |
+| `npm run preview`       | Preview the production build             |
+| `npm run lint`          | Run ESLint                               |
+| `npm run test`          | Run automated tests                      |
+| `npm run test:watch`    | Run tests in watch mode                  |
+| `npm run test:coverage` | Run tests and generate a coverage report |
+
+## Testing
+
+StyleLab uses Vitest and React Testing Library for automated testing.
+
+The test environment includes:
+
+- Vitest
+- jsdom
+- React Testing Library
+- user-event
+- jest-dom
+- V8 Coverage
+
+To run the tests:
+
+```bash
+npm run test
+```
+
+To generate a coverage report:
+
+```bash
+npm run test:coverage
+```
+
+The HTML coverage report is generated in the `coverage` directory.
+
+## Development Workflow
+
+The project uses Git and GitHub for version control and task management.
+
+Development workflow:
+
+1. Create a dedicated branch for each task.
+2. Implement the changes.
+3. Run automated tests and quality checks.
+4. Open a Pull Request.
+5. Review the changes before merging into `main`.
+
+## Repository
+
+[GitHub - StyleLab](https://github.com/hanasolomon86-jpg/stylelab)
