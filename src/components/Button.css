@@ -1,0 +1,50 @@
+.button-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: var(--accent);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    outline 0.2s ease;
+}
+
+/* Normal */
+.button-preview--normal {
+  box-shadow: none;
+}
+
+/* Hover */
+.button-preview--hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transform: translateY(-2px);
+}
+
+/* Focus */
+.button-preview--focus {
+  outline: 3px solid var(--accent-border);
+  outline-offset: 3px;
+}
+
+/* Disabled */
+.button-preview--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Error */
+.button-preview--error {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+}
