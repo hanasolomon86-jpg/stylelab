@@ -1,9 +1,10 @@
-import { WORKSPACE_STORAGE_KEY } from "../utils/workspaceStorage";
 import { beforeEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
+
 import { WorkspaceProvider } from "../context/WorkspaceContext.jsx";
+import { WORKSPACE_STORAGE_KEY } from "../utils/workspaceStorage";
 import Studio from "./Studio";
 
 function renderStudio() {
@@ -161,6 +162,132 @@ describe("Studio workspace", () => {
     expect(
       screen.getByRole("button", { name: "Select Sneakers" }),
     ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("updates the Button label and its preview", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "button",
+    );
+
+    const labelInput = screen.getByLabelText("Button label");
+
+    await user.clear(labelInput);
+    await user.type(labelInput, "Continue");
+
+    expect(
+      screen.getByRole("button", { name: "Continue" }),
+    ).toBeInTheDocument();
+  });
+
+  it("applies Button style settings to the preview", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "button",
+    );
+
+    const backgroundInput = screen.getByLabelText("Background color");
+
+    await user.clear(backgroundInput);
+    await user.type(backgroundInput, "#123456");
+
+    expect(screen.getByRole("button", { name: "Click Me" })).toHaveStyle({
+      backgroundColor: "#123456",
+    });
+  });
+
+  it("displays all Button style states correctly", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "button",
+    );
+
+    const stateSelect = screen.getByLabelText("Select style state");
+
+    const button = screen.getByRole("button", { name: "Click Me" });
+
+    for (const styleState of [
+      "normal",
+      "hover",
+      "focus",
+      "error",
+      "disabled",
+    ]) {
+      await user.selectOptions(stateSelect, styleState);
+
+      expect(button).toHaveClass(`button-preview--${styleState}`);
+
+      if (styleState === "disabled") {
+        expect(button).toBeDisabled();
+      } else {
+        expect(button).toBeEnabled();
+      }
+    }
+  });
+
+  it("inherits Normal styles across states and allows state-specific overrides", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "button",
+    );
+
+    const stateSelect = screen.getByLabelText("Select style state");
+    const backgroundInput = screen.getByLabelText("Background color");
+    const button = screen.getByRole("button", { name: "Click Me" });
+
+    // Set the base color in Normal
+    await user.type(backgroundInput, "#123456");
+
+    expect(button).toHaveStyle({
+      backgroundColor: "#123456",
+    });
+
+    // Hover inherits the Normal color
+    await user.selectOptions(stateSelect, "hover");
+
+    expect(backgroundInput).toHaveValue("#123456");
+    expect(button).toHaveStyle({
+      backgroundColor: "#123456",
+    });
+
+    // Focus also inherits the Normal color
+    await user.selectOptions(stateSelect, "focus");
+
+    expect(backgroundInput).toHaveValue("#123456");
+
+    // Set a different color specifically for Hover
+    await user.selectOptions(stateSelect, "hover");
+    await user.clear(backgroundInput);
+    await user.type(backgroundInput, "#abcdef");
+
+    // Normal keeps its original color
+    await user.selectOptions(stateSelect, "normal");
+
+    expect(backgroundInput).toHaveValue("#123456");
+
+    // Hover retains its own override
+    await user.selectOptions(stateSelect, "hover");
+
+    expect(backgroundInput).toHaveValue("#abcdef");
+    expect(button).toHaveStyle({
+      backgroundColor: "#abcdef",
+    });
   });
 
   it("keeps style settings independent between Normal and Hover", async () => {

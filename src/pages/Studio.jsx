@@ -2,6 +2,7 @@ import { Link } from "react-router";
 
 import { useWorkspace } from "../hooks/useWorkspace";
 import Card from "../components/Card";
+import Button from "../components/Button";
 import ImageGallery from "../components/ImageGallery";
 import IMAGE_GALLERY from "../data/imageGallery";
 import { COMPONENT_IDS, STYLE_STATES } from "../reducers/workspaceReducer";
@@ -67,14 +68,7 @@ function ComponentPreview({
 
   if (componentId === "button") {
     return (
-      <button
-        type="button"
-        className="component-preview"
-        aria-label="Button preview"
-        style={styles}
-      >
-        {content.label}
-      </button>
+      <Button label={content.label} styles={styles} styleState={styleState} />
     );
   }
 
@@ -105,7 +99,17 @@ function Studio() {
 
   const selectedComponentData = workspace.components[selectedComponent];
 
-  const currentStyles = selectedComponentData.styles[activeStyleState];
+  const normalStyles = selectedComponentData.styles.normal ?? {};
+
+  const activeStyles = selectedComponentData.styles[activeStyleState] ?? {};
+
+  const currentStyles =
+    activeStyleState === "normal"
+      ? normalStyles
+      : {
+          ...normalStyles,
+          ...activeStyles,
+        };
 
   return (
     <main className="page studio-page">
