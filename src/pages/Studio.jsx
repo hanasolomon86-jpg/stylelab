@@ -2,6 +2,8 @@ import { Link } from "react-router";
 
 import { useWorkspace } from "../hooks/useWorkspace";
 import Card from "../components/Card";
+import ImageGallery from "../components/ImageGallery";
+import IMAGE_GALLERY from "../data/imageGallery";
 import { COMPONENT_IDS, STYLE_STATES } from "../reducers/workspaceReducer";
 
 const COMPONENT_CONTENT_FIELDS = {
@@ -47,9 +49,12 @@ function ComponentPreview({
   layout,
 }) {
   if (componentId === "card") {
+    const selectedImage = IMAGE_GALLERY.find(
+      (image) => image.id === content.imageId,
+    );
     return (
       <Card
-        imageId={content.imageId}
+        imageId={selectedImage?.src}
         title={content.title}
         description={content.description}
         layout={layout}
@@ -177,6 +182,15 @@ function Studio() {
             ),
           )}
 
+          {selectedComponent === "card" && (
+            <ImageGallery
+              images={IMAGE_GALLERY}
+              selectedImageId={selectedComponentData.content.imageId}
+              onSelect={(imageId) =>
+                updateComponentContent("card", "imageId", imageId)
+              }
+            />
+          )}
           {selectedComponent === "card" && (
             <>
               <h3>Layout</h3>

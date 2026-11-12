@@ -1,8 +1,8 @@
+import { WORKSPACE_STORAGE_KEY } from "../utils/workspaceStorage";
 import { beforeEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
-
 import { WorkspaceProvider } from "../context/WorkspaceContext.jsx";
 import Studio from "./Studio";
 
@@ -103,6 +103,64 @@ describe("Studio workspace", () => {
     );
 
     expect(screen.getByLabelText("Image layout")).toHaveValue("left");
+  });
+
+  it("shows the Image Gallery only when Card is selected", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    expect(
+      screen.getByRole("heading", { name: "Image Gallery" }),
+    ).toBeInTheDocument();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "button",
+    );
+
+    expect(
+      screen.queryByRole("heading", { name: "Image Gallery" }),
+    ).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("Select component"), "card");
+
+    expect(
+      screen.getByRole("heading", { name: "Image Gallery" }),
+    ).toBeInTheDocument();
+  });
+
+  it("updates the Card preview and persists the selected gallery image", async () => {
+    const user = userEvent.setup();
+
+    const { unmount } = renderStudio();
+
+    await user.click(screen.getByRole("button", { name: "Select Sneakers" }));
+
+    const previewImage = screen.getByRole("img", {
+      name: "Product Title",
+    });
+
+    expect(previewImage).toHaveAttribute("src", "/images/gallery/sneakers.jpg");
+
+    const savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
+    );
+
+    expect(savedWorkspace.components.card.content.imageId).toBe("sneakers");
+
+    unmount();
+
+    renderStudio();
+
+    expect(screen.getByRole("img", { name: "Product Title" })).toHaveAttribute(
+      "src",
+      "/images/gallery/sneakers.jpg",
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Select Sneakers" }),
+    ).toHaveAttribute("aria-pressed", "true");
   });
 
   it("keeps style settings independent between Normal and Hover", async () => {
