@@ -290,6 +290,139 @@ describe("Studio workspace", () => {
     });
   });
 
+  it("updates the Input label and placeholder in the preview", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "input",
+    );
+
+    const labelControl = screen.getByLabelText("Input label");
+    const placeholderControl = screen.getByLabelText("Placeholder");
+
+    await user.clear(labelControl);
+    await user.type(labelControl, "Work Email");
+
+    await user.clear(placeholderControl);
+    await user.type(placeholderControl, "name@company.com");
+
+    const previewInput = screen.getByRole("textbox", {
+      name: "Work Email",
+    });
+
+    expect(previewInput).toHaveAttribute("placeholder", "name@company.com");
+  });
+
+  it("applies Input style settings to the preview", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "input",
+    );
+
+    const backgroundInput = screen.getByLabelText("Background color");
+    const textColorInput = screen.getByLabelText("Text color");
+    const borderRadiusInput = screen.getByLabelText("Border radius");
+    const paddingInput = screen.getByLabelText("Padding");
+
+    await user.type(backgroundInput, "#123456");
+    await user.type(textColorInput, "#ffffff");
+    await user.type(borderRadiusInput, "12px");
+    await user.type(paddingInput, "16px");
+
+    const previewInput = screen.getByRole("textbox", {
+      name: "Email",
+    });
+
+    expect(previewInput).toHaveStyle({
+      backgroundColor: "#123456",
+      color: "#ffffff",
+      borderRadius: "12px",
+      padding: "16px",
+    });
+  });
+
+  it("displays all Input style states correctly", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "input",
+    );
+
+    const stateSelect = screen.getByLabelText("Select style state");
+
+    const previewInput = screen.getByRole("textbox", {
+      name: "Email",
+    });
+
+    for (const styleState of [
+      "normal",
+      "hover",
+      "focus",
+      "error",
+      "disabled",
+    ]) {
+      await user.selectOptions(stateSelect, styleState);
+
+      expect(previewInput).toHaveClass(`input-preview--${styleState}`);
+
+      if (styleState === "disabled") {
+        expect(previewInput).toBeDisabled();
+      } else {
+        expect(previewInput).toBeEnabled();
+      }
+
+      if (styleState === "error") {
+        expect(previewInput).toHaveAttribute("aria-invalid", "true");
+      }
+    }
+  });
+
+  it("inherits Normal styles for Input across style states", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(
+      screen.getByLabelText("Select component"),
+      "input",
+    );
+
+    const stateSelect = screen.getByLabelText("Select style state");
+    const backgroundControl = screen.getByLabelText("Background color");
+
+    const previewInput = screen.getByRole("textbox", {
+      name: "Email",
+    });
+
+    await user.type(backgroundControl, "#123456");
+
+    await user.selectOptions(stateSelect, "hover");
+
+    expect(backgroundControl).toHaveValue("#123456");
+
+    expect(previewInput).toHaveStyle({
+      backgroundColor: "#123456",
+    });
+
+    await user.selectOptions(stateSelect, "focus");
+
+    expect(backgroundControl).toHaveValue("#123456");
+
+    expect(previewInput).toHaveStyle({
+      backgroundColor: "#123456",
+    });
+  });
+
   it("keeps style settings independent between Normal and Hover", async () => {
     const user = userEvent.setup();
 
