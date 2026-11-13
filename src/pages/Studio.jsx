@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useWorkspace } from "../hooks/useWorkspace";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import Input from "../components/Input";
 import ImageGallery from "../components/ImageGallery";
 import IMAGE_GALLERY from "../data/imageGallery";
 import { COMPONENT_IDS, STYLE_STATES } from "../reducers/workspaceReducer";
@@ -72,17 +73,16 @@ function ComponentPreview({
     );
   }
 
-  return (
-    <label className="component-preview">
-      {content.label}
-      <input
-        aria-label="Input preview"
+  if (componentId === "input") {
+    return (
+      <Input
+        label={content.label}
         placeholder={content.placeholder}
-        style={styles}
-        readOnly
+        styles={styles}
+        styleState={styleState}
       />
-    </label>
-  );
+    );
+  }
 }
 
 function Studio() {
