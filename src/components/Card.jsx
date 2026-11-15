@@ -7,18 +7,36 @@ function Card({
   layout = "top",
   styles = {},
   styleState = "normal",
+  designEffect = "none",
   showImagePlaceholder = false,
 }) {
-  const cardClassName = ["card", `card--${layout}`, `card--${styleState}`].join(
-    " ",
-  );
+  const cardClassName = [
+    "card",
+    `card--${layout}`,
+    `card--${styleState}`,
+    `design-effect--${designEffect}`,
+  ].join(" ");
 
   const hasImage = Boolean(imageId);
   const shouldShowImage = hasImage || showImagePlaceholder;
-  const { padding, ...cardStyles } = styles;
+
+  const { padding, backgroundColor, color, ...cardStyles } = styles;
+
+  const cardStyle =
+    designEffect === "none"
+      ? {
+          ...cardStyles,
+          backgroundColor,
+          color,
+        }
+      : {
+          ...cardStyles,
+          "--component-background": backgroundColor ?? "#ffffff",
+          "--component-color": color ?? "var(--text)",
+        };
 
   return (
-    <article className={cardClassName} style={cardStyles}>
+    <article className={cardClassName} style={cardStyle}>
       {shouldShowImage && (
         <div
           className={`card__image${!hasImage ? " card__image--placeholder" : ""}`}

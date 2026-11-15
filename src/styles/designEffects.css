@@ -1,0 +1,429 @@
+
+/* Glassmorphism */
+.card.design-effect--glassmorphism,
+.button-preview.design-effect--glassmorphism,
+.input-preview.design-effect--glassmorphism {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+}
+
+.card.design-effect--glassmorphism {
+  background-color: rgba(255, 255, 255, 0.65);
+}
+
+.button-preview.design-effect--glassmorphism {
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.05)
+  );
+}
+
+.input-preview.design-effect--glassmorphism {
+  background-color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Preserve error indication */
+.button-preview--error.design-effect--glassmorphism,
+.input-preview--error.design-effect--glassmorphism {
+  border-color: #dc2626;
+}
+
+/* Neumorphism */
+.card.design-effect--neumorphism,
+.button-preview.design-effect--neumorphism,
+.input-preview.design-effect--neumorphism {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.12),
+    -6px -6px 12px rgba(255, 255, 255, 0.7);
+}
+
+.input-preview.design-effect--neumorphism {
+  box-shadow:
+    inset 3px 3px 6px rgba(0, 0, 0, 0.1),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.7);
+}
+
+/* Preserve error indication */
+.button-preview--error.design-effect--neumorphism,
+.input-preview--error.design-effect--neumorphism {
+  border-color: #dc2626;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .card.design-effect--glassmorphism,
+  .button-preview.design-effect--glassmorphism,
+  .input-preview.design-effect--glassmorphism,
+  .card.design-effect--neumorphism,
+  .button-preview.design-effect--neumorphism,
+  .input-preview.design-effect--neumorphism {
+    transition: none;
+  }
+}
+
+
+/* Preview stage - shared foundation */
+.preview-stage {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 280px;
+  box-sizing: border-box;
+  padding: 40px 32px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #f8fafc, #eef2ff);
+  transition: background 0.35s ease;
+}
+
+.preview-stage > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Glassmorphism environment */
+.preview-stage--glassmorphism {
+  background: linear-gradient(
+    135deg,
+    #c4b5fd 0%,
+    #a5b4fc 48%,
+    #67e8f9 100%
+  );
+}
+
+.preview-stage--glassmorphism::before,
+.preview-stage--glassmorphism::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(12px);
+}
+
+.preview-stage--glassmorphism::before {
+  top: -120px;
+  left: -90px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.85),
+    transparent 70%
+  );
+}
+
+.preview-stage--glassmorphism::after {
+  right: -100px;
+  bottom: -140px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.65),
+    transparent 70%
+  );
+}
+
+/* Neumorphism environment */
+.preview-stage--neumorphism {
+  background: linear-gradient(
+    145deg,
+    #eef0f7,
+    #dfe3ee
+  );
+}
+
+.preview-stage--neumorphism::before,
+.preview-stage--neumorphism::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(35px);
+}
+
+.preview-stage--neumorphism::before {
+  top: -190px;
+  right: -120px;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.preview-stage--neumorphism::after {
+  bottom: -190px;
+  left: -120px;
+  background: rgba(164, 174, 199, 0.25);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .preview-stage {
+    transition: none;
+  }
+}
+
+
+/* =========================================
+   Enhanced Button Effects
+   ========================================= */
+
+/* Glassmorphism - frosted glass */
+.button-preview.design-effect--glassmorphism {
+  background-color: color-mix(
+    in srgb,
+    var(--component-background, var(--accent)) 42%,
+    transparent
+  );
+
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+
+  border: 1px solid rgba(255, 255, 255, 0.85);
+
+  box-shadow:
+    0 12px 30px rgba(31, 38, 135, 0.22),
+    0 4px 10px rgba(255, 255, 255, 0.3),
+    inset 0 2px 2px rgba(255, 255, 255, 0.8),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.15);
+}
+
+
+/* Neumorphism - soft pastel 3D surface */
+.button-preview.design-effect--neumorphism {
+  background-color: color-mix(
+    in srgb,
+    var(--component-background, var(--accent)) 18%,
+    #eef0f7 82%
+  );
+
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.8),
+    rgba(205, 210, 228, 0.22)
+  );
+
+  color: color-mix(
+    in srgb,
+    var(--component-color, #ffffff) 25%,
+    #302d43 75%
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+
+  box-shadow:
+    9px 9px 20px rgba(91, 96, 125, 0.22),
+    -9px -9px 20px rgba(255, 255, 255, 0.95),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.85),
+    inset -2px -2px 4px rgba(100, 105, 135, 0.08);
+}
+
+
+/* =========================================
+   Enhanced Card Effects
+   ========================================= */
+
+/* Glassmorphism - frosted glass card */
+.card.design-effect--glassmorphism {
+  background-color: color-mix(
+    in srgb,
+    var(--component-background, #ffffff) 42%,
+    transparent
+  );
+
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+
+  border: 1px solid rgba(255, 255, 255, 0.85);
+
+  box-shadow:
+    0 16px 36px rgba(31, 38, 135, 0.2),
+    0 4px 12px rgba(255, 255, 255, 0.3),
+    inset 0 2px 3px rgba(255, 255, 255, 0.75),
+    inset 0 -2px 5px rgba(255, 255, 255, 0.15);
+}
+
+/* Neumorphism - soft pastel 3D card */
+.card.design-effect--neumorphism {
+  background-color: color-mix(
+    in srgb,
+    var(--component-background, #ffffff) 18%,
+    #eef0f7 82%
+  );
+
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.8),
+    rgba(205, 210, 228, 0.22)
+  );
+
+  color: color-mix(
+    in srgb,
+    var(--component-color, #302d43) 25%,
+    #302d43 75%
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+
+  box-shadow:
+    12px 12px 26px rgba(91, 96, 125, 0.2),
+    -12px -12px 26px rgba(255, 255, 255, 0.95),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.85),
+    inset -2px -2px 4px rgba(100, 105, 135, 0.08);
+}
+
+
+/* =========================================
+   Enhanced Input Effects
+   ========================================= */
+
+/* Glassmorphism - frosted glass input */
+.input-preview.design-effect--glassmorphism {
+  background-color: color-mix(
+    in srgb,
+    var(--component-background, var(--bg)) 42%,
+    transparent
+  );
+
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+
+  border: 1px solid rgba(255, 255, 255, 0.85);
+
+  box-shadow:
+    0 8px 22px rgba(31, 38, 135, 0.16),
+    inset 0 2px 3px rgba(255, 255, 255, 0.8),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.15);
+}
+
+/* Neumorphism - soft pastel inset input */
+.input-preview.design-effect--neumorphism {
+  background-color: color-mix(
+    in srgb,
+    var(--component-background, var(--bg)) 18%,
+    #eef0f7 82%
+  );
+
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.8),
+    rgba(205, 210, 228, 0.22)
+  );
+
+  color: color-mix(
+    in srgb,
+    var(--component-color, var(--text-h)) 25%,
+    #302d43 75%
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+
+  box-shadow:
+    inset 5px 5px 10px rgba(91, 96, 125, 0.18),
+    inset -5px -5px 10px rgba(255, 255, 255, 0.95),
+    0 2px 5px rgba(91, 96, 125, 0.08);
+}
+
+/* Preserve error indication */
+.input-preview--error.design-effect--glassmorphism,
+.input-preview--error.design-effect--neumorphism {
+  border-color: #dc2626;
+}
+
+
+/* =========================================
+   Style State Previews - All Components
+   ========================================= */
+
+/* Card - Hover */
+.card.card--hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 10px 12px rgba(31, 38, 135, 0.2));
+}
+
+/* Focus - visible focus ring */
+.card.card--focus,
+.button-preview.button-preview--focus,
+.input-preview.input-preview--focus {
+  outline: 3px solid var(--accent-border);
+  outline-offset: 3px;
+}
+
+/* Card - Disabled */
+.card.card--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+  transform: none;
+}
+
+/* Card - Error */
+.card.card--error {
+  border-color: #dc2626;
+  outline: 1px solid rgba(220, 38, 38, 0.25);
+  outline-offset: 1px;
+}
+
+/* Button - Hover with design effects */
+.button-preview.button-preview--hover.design-effect--glassmorphism,
+.button-preview.button-preview--hover.design-effect--neumorphism {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+/* Input - Hover with design effects */
+.input-preview.input-preview--hover.design-effect--glassmorphism,
+.input-preview.input-preview--hover.design-effect--neumorphism {
+  border-color: var(--accent-border);
+  filter: brightness(1.04);
+}
+
+/* Disabled - keep the state visible with design effects */
+.button-preview.button-preview--disabled.design-effect--glassmorphism,
+.button-preview.button-preview--disabled.design-effect--neumorphism,
+.input-preview.input-preview--disabled.design-effect--glassmorphism,
+.input-preview.input-preview--disabled.design-effect--neumorphism {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+  transform: none;
+}
+
+/* Error - preserve the red error indication */
+.button-preview.button-preview--error.design-effect--glassmorphism,
+.button-preview.button-preview--error.design-effect--neumorphism,
+.input-preview.input-preview--error.design-effect--glassmorphism,
+.input-preview.input-preview--error.design-effect--neumorphism {
+  border-color: #dc2626;
+  outline: 1px solid rgba(220, 38, 38, 0.25);
+  outline-offset: 1px;
+}
+

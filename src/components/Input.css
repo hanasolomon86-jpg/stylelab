@@ -19,8 +19,8 @@
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background-color: var(--bg);
-  color: var(--text-h);
+  background-color: var(--component-background, var(--bg));
+  color: var(--component-color, var(--text-h));
   font-family: inherit;
   font-size: 15px;
   transition:

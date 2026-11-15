@@ -9,10 +9,17 @@ export const STYLE_STATES = [
     'error',
 ]
 
+export const DESIGN_EFFECTS = [
+    "none",
+    "glassmorphism",
+    "neumorphism",
+];
+
 export const WORKSPACE_ACTIONS = {
     UPDATE_COMPONENT_CONTENT: 'UPDATE_COMPONENT_CONTENT',
     UPDATE_COMPONENT_STYLE: 'UPDATE_COMPONENT_STYLE',
     UPDATE_COMPONENT_LAYOUT: 'UPDATE_COMPONENT_LAYOUT',
+    UPDATE_COMPONENT_DESIGN_EFFECT: "UPDATE_COMPONENT_DESIGN_EFFECT",
 }
 
 const createEmptyStyles = () => ({
@@ -30,6 +37,7 @@ export function createInitialWorkspace() {
         components: {
             card: {
                 layout: 'top',
+                designEffect: "none",
                 content: {
                     title: 'Product Title',
                     description: 'Product description',
@@ -39,6 +47,7 @@ export function createInitialWorkspace() {
             },
 
             button: {
+                designEffect: "none",
                 content: {
                     label: 'Click Me',
                 },
@@ -46,6 +55,7 @@ export function createInitialWorkspace() {
             },
 
             input: {
+                designEffect: "none",
                 content: {
                     label: 'Email',
                     placeholder: 'Enter your email',
@@ -145,6 +155,30 @@ export function workspaceReducer(state, action) {
                     },
                 },
             }
+        }
+
+        case WORKSPACE_ACTIONS.UPDATE_COMPONENT_DESIGN_EFFECT: {
+            const { componentId, designEffect } = action.payload;
+
+            if (
+                !COMPONENT_IDS.includes(componentId) ||
+                !DESIGN_EFFECTS.includes(designEffect)
+            ) {
+                return state;
+            }
+
+            const component = state.components[componentId];
+
+            return {
+                ...state,
+                components: {
+                    ...state.components,
+                    [componentId]: {
+                        ...component,
+                        designEffect,
+                    },
+                },
+            };
         }
 
         default:

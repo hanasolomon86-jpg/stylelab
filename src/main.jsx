@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import { WorkspaceProvider } from "./context/WorkspaceContext.jsx";
 import "./index.css";
+import "./styles/designEffects.css";
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(

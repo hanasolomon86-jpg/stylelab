@@ -1,21 +1,24 @@
+
 .button-preview {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 12px 20px;
   border: 1px solid transparent;
   border-radius: 8px;
-  background-color: var(--accent);
-  color: #ffffff;
+  background-color: var(--component-background, var(--accent));
+  color: var(--component-color, #ffffff);
   font-family: inherit;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease,
-    outline 0.2s ease;
+    background-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease,
+    border-color 0.25s ease;
 }
 
 /* Normal */

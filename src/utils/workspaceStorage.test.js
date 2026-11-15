@@ -1,7 +1,10 @@
 
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { createInitialWorkspace } from '../reducers/workspaceReducer'
+import {
+    COMPONENT_IDS,
+    createInitialWorkspace,
+} from '../reducers/workspaceReducer'
 
 import {
     loadWorkspace,
@@ -116,6 +119,68 @@ describe('workspaceStorage', () => {
         expect(loadedWorkspace.components.card.content.description).toBe(
             'Product description',
         );
+    });
+
+    it('uses none as the default design effect for all components', () => {
+        const workspace = createInitialWorkspace();
+
+        COMPONENT_IDS.forEach((componentId) => {
+            expect(workspace.components[componentId].designEffect).toBe('none');
+        });
+    });
+
+    it('uses none when loading an older workspace without design effects', () => {
+        const workspace = createInitialWorkspace();
+
+        COMPONENT_IDS.forEach((componentId) => {
+            delete workspace.components[componentId].designEffect;
+        });
+
+        workspace.components.card.content.title = 'My Product';
+
+        localStorage.setItem(
+            WORKSPACE_STORAGE_KEY,
+            JSON.stringify(workspace),
+        );
+
+        const loadedWorkspace = loadWorkspace();
+
+        COMPONENT_IDS.forEach((componentId) => {
+            expect(loadedWorkspace.components[componentId].designEffect).toBe('none');
+        });
+
+        expect(loadedWorkspace.components.card.content.title).toBe('My Product');
+    });
+
+    it('saves and loads design effects for all components', () => {
+        const workspace = createInitialWorkspace();
+
+        workspace.components.card.designEffect = 'glassmorphism';
+        workspace.components.button.designEffect = 'neumorphism';
+        workspace.components.input.designEffect = 'glassmorphism';
+
+        expect(saveWorkspace(workspace)).toBe(true);
+
+        const loadedWorkspace = loadWorkspace();
+
+        expect(loadedWorkspace.components.card.designEffect).toBe('glassmorphism');
+        expect(loadedWorkspace.components.button.designEffect).toBe('neumorphism');
+        expect(loadedWorkspace.components.input.designEffect).toBe('glassmorphism');
+    });
+
+    it('uses none when loading an unsupported design effect', () => {
+        const workspace = createInitialWorkspace();
+
+        workspace.components.card.designEffect = 'unsupported-effect';
+
+        localStorage.setItem(
+            WORKSPACE_STORAGE_KEY,
+            JSON.stringify(workspace),
+        );
+
+        const loadedWorkspace = loadWorkspace();
+
+        expect(loadedWorkspace.components.card.designEffect).toBe('none');
     });
 
     it('handles storage errors when saving', () => {

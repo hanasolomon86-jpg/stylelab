@@ -6,7 +6,11 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import ImageGallery from "../components/ImageGallery";
 import IMAGE_GALLERY from "../data/imageGallery";
-import { COMPONENT_IDS, STYLE_STATES } from "../reducers/workspaceReducer";
+import {
+  COMPONENT_IDS,
+  STYLE_STATES,
+  DESIGN_EFFECTS,
+} from "../reducers/workspaceReducer";
 
 const COMPONENT_CONTENT_FIELDS = {
   card: [
@@ -49,6 +53,7 @@ function ComponentPreview({
   styles,
   styleState,
   layout,
+  designEffect,
 }) {
   if (componentId === "card") {
     const selectedImage = IMAGE_GALLERY.find(
@@ -62,6 +67,7 @@ function ComponentPreview({
         layout={layout}
         styles={styles}
         styleState={styleState}
+        designEffect={designEffect}
         showImagePlaceholder
       />
     );
@@ -69,7 +75,12 @@ function ComponentPreview({
 
   if (componentId === "button") {
     return (
-      <Button label={content.label} styles={styles} styleState={styleState} />
+      <Button
+        label={content.label}
+        styles={styles}
+        styleState={styleState}
+        designEffect={designEffect}
+      />
     );
   }
 
@@ -80,6 +91,7 @@ function ComponentPreview({
         placeholder={content.placeholder}
         styles={styles}
         styleState={styleState}
+        designEffect={designEffect}
       />
     );
   }
@@ -95,6 +107,7 @@ function Studio() {
     updateComponentContent,
     updateComponentLayout,
     updateComponentStyle,
+    updateComponentDesignEffect,
   } = useWorkspace();
 
   const selectedComponentData = workspace.components[selectedComponent];
@@ -159,6 +172,24 @@ function Studio() {
             {STYLE_STATES.map((styleState) => (
               <option key={styleState} value={styleState}>
                 {styleState.charAt(0).toUpperCase() + styleState.slice(1)}
+              </option>
+            ))}
+          </select>
+
+          <h3>Design Effect</h3>
+
+          <label htmlFor="design-effect-select">Select design effect</label>
+
+          <select
+            id="design-effect-select"
+            value={selectedComponentData.designEffect ?? "none"}
+            onChange={(event) =>
+              updateComponentDesignEffect(selectedComponent, event.target.value)
+            }
+          >
+            {DESIGN_EFFECTS.map((designEffect) => (
+              <option key={designEffect} value={designEffect}>
+                {designEffect.charAt(0).toUpperCase() + designEffect.slice(1)}
               </option>
             ))}
           </select>
@@ -241,13 +272,18 @@ function Studio() {
         <article className="studio-panel">
           <h2>Live Preview</h2>
 
-          <ComponentPreview
-            componentId={selectedComponent}
-            content={selectedComponentData.content}
-            styles={currentStyles}
-            styleState={activeStyleState}
-            layout={selectedComponentData.layout ?? "top"}
-          />
+          <div
+            className={`preview-stage preview-stage--${selectedComponentData.designEffect ?? "none"}`}
+          >
+            <ComponentPreview
+              componentId={selectedComponent}
+              content={selectedComponentData.content}
+              styles={currentStyles}
+              styleState={activeStyleState}
+              layout={selectedComponentData.layout ?? "top"}
+              designEffect={selectedComponentData.designEffect ?? "none"}
+            />
+          </div>
         </article>
 
         <article className="studio-panel">
