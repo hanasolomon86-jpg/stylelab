@@ -70,6 +70,16 @@ export function WorkspaceProvider({ children }) {
     });
   }
 
+  function updateComponentDesignEffect(componentId, designEffect) {
+    dispatch({
+      type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_DESIGN_EFFECT,
+      payload: {
+        componentId,
+        designEffect,
+      },
+    });
+  }
+
   const contextValue = {
     workspace,
     selectedComponent,
@@ -79,6 +89,7 @@ export function WorkspaceProvider({ children }) {
     updateComponentContent,
     updateComponentStyle,
     updateComponentLayout,
+    updateComponentDesignEffect,
   };
 
   return (

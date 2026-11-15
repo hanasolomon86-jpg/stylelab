@@ -1,6 +1,7 @@
 import {
     COMPONENT_IDS,
     STYLE_STATES,
+    DESIGN_EFFECTS,
     createInitialWorkspace,
 } from "../reducers/workspaceReducer";
 
@@ -77,13 +78,26 @@ export function loadWorkspace(storage) {
 
         return {
             ...parsedWorkspace,
-            components: {
-                ...parsedWorkspace.components,
-                card: {
-                    ...parsedWorkspace.components.card,
-                    layout: parsedWorkspace.components.card.layout ?? "top",
-                },
-            },
+            components: Object.fromEntries(
+                COMPONENT_IDS.map((componentId) => {
+                    const component = parsedWorkspace.components[componentId];
+
+                    return [
+                        componentId,
+                        {
+                            ...component,
+                            ...(componentId === "card"
+                                ? { layout: component.layout ?? "top" }
+                                : {}),
+                            designEffect: DESIGN_EFFECTS.includes(
+                                component.designEffect,
+                            )
+                                ? component.designEffect
+                                : "none",
+                        },
+                    ];
+                }),
+            ),
         };
     } catch {
         return createInitialWorkspace();
