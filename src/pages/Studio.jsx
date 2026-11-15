@@ -4,6 +4,7 @@ import { useWorkspace } from "../hooks/useWorkspace";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Input from "../components/Input";
+import CodeGenerator from "../components/CodeGenerator";
 import ImageGallery from "../components/ImageGallery";
 import IMAGE_GALLERY from "../data/imageGallery";
 import {
@@ -288,7 +289,12 @@ function Studio() {
 
         <article className="studio-panel">
           <h2>Code Generator</h2>
-          <p>Generated JSX, CSS and Tailwind code will appear here.</p>
+
+          <CodeGenerator
+            componentId={selectedComponent}
+            componentData={selectedComponentData}
+            activeStyleState={activeStyleState}
+          />
         </article>
       </section>
     </main>
