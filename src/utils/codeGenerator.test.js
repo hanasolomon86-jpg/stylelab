@@ -204,7 +204,7 @@ describe("codeGenerator", () => {
 
                 expect(code).toContain("export default function Generated");
                 expect(code).toContain("stylelab-");
-                expect(code).toContain("./GeneratedComponent.css");
+                expect(code).toContain(`import "./${componentId}.css";`);
             },
         );
 
