@@ -145,6 +145,7 @@ export function generateJsx(options) {
     } = config;
 
     const className = getGeneratedClassName(config);
+    const cssImport = `import "./${componentId}.css";`;
 
     const isDisabled = activeStyleState === "disabled";
     const isError = activeStyleState === "error";
@@ -159,7 +160,7 @@ export function generateJsx(options) {
           />`
             : "";
 
-        return `import "./GeneratedComponent.css";
+        return `${cssImport}
 
 export default function GeneratedCard() {
   return (
@@ -180,7 +181,7 @@ export default function GeneratedCard() {
     }
 
     if (componentId === "button") {
-        return `import "./GeneratedComponent.css";
+        return `${cssImport}
 
 export default function GeneratedButton() {
   return (
@@ -196,7 +197,7 @@ export default function GeneratedButton() {
 }`;
     }
 
-    return `import "./GeneratedComponent.css";
+    return `${cssImport}
 
 export default function GeneratedInput() {
   return (
