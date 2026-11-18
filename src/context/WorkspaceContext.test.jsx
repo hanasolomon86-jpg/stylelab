@@ -29,6 +29,10 @@ function WorkspaceConsumer() {
         {workspace.components.card.layout ?? "top"}
       </p>
 
+      <p data-testid="normal-background">
+        {workspace.components.card.styles.normal.backgroundColor ?? ""}
+      </p>
+
       <p data-testid="hover-background">
         {workspace.components.card.styles.hover.backgroundColor ?? ""}
       </p>
@@ -44,10 +48,18 @@ function WorkspaceConsumer() {
 
       <button
         onClick={() =>
-          updateComponentStyle("card", "hover", "backgroundColor", "#123456")
+          updateComponentStyle("card", "normal", "backgroundColor", "#123456")
         }
       >
-        Update hover style
+        Update base style
+      </button>
+
+      <button
+        onClick={() =>
+          updateComponentStyle("card", "hover", "backgroundColor", "#abcdef")
+        }
+      >
+        Attempt hover style
       </button>
 
       <button onClick={() => selectComponent("button")}>Select button</button>
@@ -89,13 +101,14 @@ describe("WorkspaceContext", () => {
 
     await user.click(screen.getByRole("button", { name: "Update card title" }));
 
-    await user.click(
-      screen.getByRole("button", { name: "Update hover style" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Update base style" }));
 
     expect(screen.getByTestId("card-title")).toHaveTextContent("Saved title");
 
-    expect(screen.getByTestId("hover-background")).toHaveTextContent("#123456");
+    expect(screen.getByTestId("normal-background")).toHaveTextContent(
+      "#123456",
+    );
+    expect(screen.getByTestId("hover-background")).toBeEmptyDOMElement();
 
     const savedWorkspace = JSON.parse(
       localStorage.getItem(WORKSPACE_STORAGE_KEY),
@@ -103,11 +116,11 @@ describe("WorkspaceContext", () => {
 
     expect(savedWorkspace.components.card.content.title).toBe("Saved title");
 
-    expect(savedWorkspace.components.card.styles.hover.backgroundColor).toBe(
+    expect(savedWorkspace.components.card.styles.normal.backgroundColor).toBe(
       "#123456",
     );
 
-    expect(savedWorkspace.components.card.styles.normal).toEqual({});
+    expect(savedWorkspace.components.card.styles.hover).toEqual({});
   });
 
   it("restores workspace data but resets temporary editor state", async () => {
@@ -161,5 +174,25 @@ describe("WorkspaceContext", () => {
     renderWorkspace();
 
     expect(screen.getByTestId("card-layout")).toHaveTextContent("left");
+  });
+
+  it("ignores style updates outside Normal", async () => {
+    const user = userEvent.setup();
+
+    renderWorkspace();
+
+    await user.click(
+      screen.getByRole("button", { name: "Attempt hover style" }),
+    );
+
+    expect(screen.getByTestId("hover-background")).toBeEmptyDOMElement();
+    expect(screen.getByTestId("normal-background")).toBeEmptyDOMElement();
+
+    const savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
+    );
+
+    expect(savedWorkspace.components.card.styles.hover).toEqual({});
+    expect(savedWorkspace.components.card.styles.normal).toEqual({});
   });
 });

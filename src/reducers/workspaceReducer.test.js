@@ -47,25 +47,29 @@ describe('workspaceReducer', () => {
         )
     })
 
-    it('updates a style property only in the selected style state', () => {
+    it('updates a base style property in Normal without mutating the original state', () => {
         const initialState = createInitialWorkspace()
 
         const newState = workspaceReducer(initialState, {
             type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_STYLE,
             payload: {
                 componentId: 'card',
-                styleState: 'hover',
+                styleState: 'normal',
                 property: 'backgroundColor',
                 value: '#000000',
             },
         })
 
         expect(
-            newState.components.card.styles.hover.backgroundColor,
+            newState.components.card.styles.normal.backgroundColor,
         ).toBe('#000000')
 
-        expect(newState.components.card.styles.normal).toEqual({})
-        expect(initialState.components.card.styles.hover).toEqual({})
+        expect(newState.components.card.styles.hover).toEqual({})
+        expect(newState.components.card.styles.focus).toEqual({})
+        expect(newState.components.card.styles.disabled).toEqual({})
+        expect(newState.components.card.styles.error).toEqual({})
+
+        expect(initialState.components.card.styles.normal).toEqual({})
     })
 
     it('ignores updates with an invalid content field', () => {
@@ -128,6 +132,60 @@ describe('workspaceReducer', () => {
         expect(newState).toBe(initialState)
     })
 
+    it('updates the component design effect without mutating the original state', () => {
+        const initialState = createInitialWorkspace()
+
+        const newState = workspaceReducer(initialState, {
+            type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_DESIGN_EFFECT,
+            payload: {
+                componentId: 'card',
+                designEffect: 'glassmorphism',
+            },
+        })
+
+        expect(newState.components.card.designEffect).toBe('glassmorphism')
+        expect(initialState.components.card.designEffect).toBe('none')
+        expect(newState.components.button).toBe(initialState.components.button)
+    })
+
+    it('updates only Normal styles and ignores interaction-state style updates', () => {
+        const initialState = createInitialWorkspace();
+
+        const normalState = workspaceReducer(initialState, {
+            type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_STYLE,
+            payload: {
+                componentId: 'button',
+                styleState: 'normal',
+                property: 'backgroundColor',
+                value: '#123456',
+            },
+        });
+
+        expect(
+            normalState.components.button.styles.normal.backgroundColor,
+        ).toBe('#123456');
+
+        expect(
+            initialState.components.button.styles.normal.backgroundColor,
+        ).toBeUndefined();
+
+        for (const styleState of ['hover', 'focus', 'disabled', 'error']) {
+            const nextState = workspaceReducer(normalState, {
+                type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_STYLE,
+                payload: {
+                    componentId: 'button',
+                    styleState,
+                    property: 'backgroundColor',
+                    value: '#abcdef',
+                },
+            });
+
+            expect(nextState).toBe(normalState);
+            expect(
+                nextState.components.button.styles[styleState],
+            ).toEqual({});
+        }
+    });
 
     it('ignores unknown actions', () => {
         const initialState = createInitialWorkspace()

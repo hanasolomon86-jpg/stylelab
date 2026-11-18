@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 
@@ -17,15 +17,31 @@ function renderStudio() {
   );
 }
 
+function changeColor(input, value) {
+  fireEvent.change(input, {
+    target: { value },
+  });
+}
+
+function changeNumber(input, value) {
+  fireEvent.change(input, {
+    target: { value: String(value) },
+  });
+}
+
 describe("Studio workspace", () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
-  it("displays the default Card component", () => {
+  it("displays the default Card component", async () => {
+    const user = userEvent.setup();
+
     renderStudio();
 
-    expect(screen.getByLabelText("Select component")).toHaveValue("card");
+    expect(screen.getByLabelText("Component")).toHaveValue("card");
+
+    await user.click(screen.getByRole("button", { name: "Content" }));
 
     expect(screen.getByLabelText("Card title")).toHaveValue("Product Title");
 
@@ -39,12 +55,11 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "button",
-    );
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
 
-    expect(screen.getByLabelText("Select component")).toHaveValue("button");
+    await user.click(screen.getByRole("button", { name: "Content" }));
+
+    expect(screen.getByLabelText("Component")).toHaveValue("button");
 
     expect(screen.getByLabelText("Button label")).toHaveValue("Click Me");
   });
@@ -54,6 +69,7 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
+    await user.click(screen.getByRole("button", { name: "Content" }));
     const titleInput = screen.getByLabelText("Card title");
 
     await user.clear(titleInput);
@@ -68,6 +84,8 @@ describe("Studio workspace", () => {
     const user = userEvent.setup();
 
     const { container } = renderStudio();
+
+    await user.click(screen.getByRole("button", { name: "Layout" }));
 
     const layoutSelect = screen.getByLabelText("Image layout");
 
@@ -85,23 +103,25 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
+    await user.click(screen.getByRole("button", { name: "Layout" }));
+
     await user.selectOptions(screen.getByLabelText("Image layout"), "left");
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "button",
-    );
+    // Switch to Button
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
 
     expect(screen.queryByLabelText("Image layout")).not.toBeInTheDocument();
 
-    await user.selectOptions(screen.getByLabelText("Select component"), "card");
+    // Return to Card
+    await user.selectOptions(screen.getByLabelText("Component"), "card");
+
+    // Layout is available again, but Style is the active category
+    await user.click(screen.getByRole("button", { name: "Layout" }));
 
     expect(screen.getByLabelText("Image layout")).toHaveValue("left");
 
-    await user.selectOptions(
-      screen.getByLabelText("Select style state"),
-      "hover",
-    );
+    // Changing style state must not reset the Card layout
+    await user.selectOptions(screen.getByLabelText("Style state"), "hover");
 
     expect(screen.getByLabelText("Image layout")).toHaveValue("left");
   });
@@ -111,20 +131,19 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
+    await user.click(screen.getByRole("button", { name: "Content" }));
+
     expect(
       screen.getByRole("heading", { name: "Image Gallery" }),
     ).toBeInTheDocument();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "button",
-    );
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
 
     expect(
       screen.queryByRole("heading", { name: "Image Gallery" }),
     ).not.toBeInTheDocument();
 
-    await user.selectOptions(screen.getByLabelText("Select component"), "card");
+    await user.selectOptions(screen.getByLabelText("Component"), "card");
 
     expect(
       screen.getByRole("heading", { name: "Image Gallery" }),
@@ -136,6 +155,7 @@ describe("Studio workspace", () => {
 
     const { unmount } = renderStudio();
 
+    await user.click(screen.getByRole("button", { name: "Content" }));
     await user.click(screen.getByRole("button", { name: "Select Sneakers" }));
 
     const previewImage = screen.getByRole("img", {
@@ -159,6 +179,8 @@ describe("Studio workspace", () => {
       "/images/gallery/sneakers.jpg",
     );
 
+    await user.click(screen.getByRole("button", { name: "Content" }));
+
     expect(
       screen.getByRole("button", { name: "Select Sneakers" }),
     ).toHaveAttribute("aria-pressed", "true");
@@ -169,10 +191,8 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "button",
-    );
+    await user.click(screen.getByRole("button", { name: "Content" }));
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
 
     const labelInput = screen.getByLabelText("Button label");
 
@@ -184,20 +204,87 @@ describe("Studio workspace", () => {
     ).toBeInTheDocument();
   });
 
+  it("does not create style overrides when displaying default or inherited colors", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    const backgroundInput = screen.getByLabelText("Background color");
+    const stateSelect = screen.getByLabelText("Style state");
+
+    // Card displays its default background color
+    expect(backgroundInput).toHaveValue("#ffffff");
+
+    let savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
+    );
+
+    expect(savedWorkspace.components.card.styles.normal).not.toHaveProperty(
+      "backgroundColor",
+    );
+
+    // Switch to Hover without changing the color
+    await user.selectOptions(stateSelect, "hover");
+
+    expect(backgroundInput).toHaveValue("#ffffff");
+
+    savedWorkspace = JSON.parse(localStorage.getItem(WORKSPACE_STORAGE_KEY));
+
+    expect(savedWorkspace.components.card.styles.hover).not.toHaveProperty(
+      "backgroundColor",
+    );
+  });
+
+  it("displays the correct default colors for each component", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    const backgroundInput = screen.getByLabelText("Background color");
+    const textColorInput = screen.getByLabelText("Text color");
+
+    // Card defaults
+    expect(backgroundInput).toHaveValue("#ffffff");
+    expect(textColorInput).toHaveValue("#6b6375");
+
+    // Button defaults
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
+
+    expect(backgroundInput).toHaveValue("#aa3bff");
+    expect(textColorInput).toHaveValue("#ffffff");
+
+    // Input defaults
+    await user.selectOptions(screen.getByLabelText("Component"), "input");
+
+    expect(backgroundInput).toHaveValue("#ffffff");
+    expect(textColorInput).toHaveValue("#08060d");
+
+    // Displaying default colors must not create overrides
+    const savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
+    );
+
+    for (const componentId of ["card", "button", "input"]) {
+      expect(
+        savedWorkspace.components[componentId].styles.normal,
+      ).not.toHaveProperty("backgroundColor");
+
+      expect(
+        savedWorkspace.components[componentId].styles.normal,
+      ).not.toHaveProperty("color");
+    }
+  });
+
   it("applies Button style settings to the preview", async () => {
     const user = userEvent.setup();
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "button",
-    );
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
 
     const backgroundInput = screen.getByLabelText("Background color");
 
-    await user.clear(backgroundInput);
-    await user.type(backgroundInput, "#123456");
+    changeColor(backgroundInput, "#123456");
 
     expect(screen.getByRole("button", { name: "Click Me" })).toHaveStyle({
       backgroundColor: "#123456",
@@ -209,12 +296,9 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "button",
-    );
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
 
-    const stateSelect = screen.getByLabelText("Select style state");
+    const stateSelect = screen.getByLabelText("Style state");
 
     const button = screen.getByRole("button", { name: "Click Me" });
 
@@ -237,57 +321,82 @@ describe("Studio workspace", () => {
     }
   });
 
-  it("inherits Normal styles across states and allows state-specific overrides", async () => {
+  it("uses the same Normal styles across all interaction states", async () => {
     const user = userEvent.setup();
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "button",
-    );
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
 
-    const stateSelect = screen.getByLabelText("Select style state");
+    const stateSelect = screen.getByLabelText("Style state");
     const backgroundInput = screen.getByLabelText("Background color");
     const button = screen.getByRole("button", { name: "Click Me" });
 
-    // Set the base color in Normal
-    await user.type(backgroundInput, "#123456");
+    changeColor(backgroundInput, "#123456");
 
-    expect(button).toHaveStyle({
-      backgroundColor: "#123456",
-    });
+    for (const styleState of [
+      "normal",
+      "hover",
+      "focus",
+      "disabled",
+      "error",
+    ]) {
+      await user.selectOptions(stateSelect, styleState);
 
-    // Hover inherits the Normal color
+      expect(backgroundInput).toHaveValue("#123456");
+      expect(button).toHaveStyle({
+        backgroundColor: "#123456",
+      });
+    }
+  });
+
+  it("does not create state-specific overrides or show reset actions", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
+
+    const stateSelect = screen.getByLabelText("Style state");
+    const backgroundInput = screen.getByLabelText("Background color");
+    const button = screen.getByRole("button", { name: "Click Me" });
+
     await user.selectOptions(stateSelect, "hover");
 
-    expect(backgroundInput).toHaveValue("#123456");
-    expect(button).toHaveStyle({
-      backgroundColor: "#123456",
-    });
+    const backgroundControl = backgroundInput.closest(".style-control");
 
-    // Focus also inherits the Normal color
-    await user.selectOptions(stateSelect, "focus");
+    expect(backgroundControl).not.toHaveTextContent(
+      /Inherited from Normal|Custom/i,
+    );
+    expect(backgroundControl.querySelector("button")).toBeNull();
 
-    expect(backgroundInput).toHaveValue("#123456");
+    expect(
+      screen.queryByRole("button", {
+        name: /Reset .* override/i,
+      }),
+    ).not.toBeInTheDocument();
 
-    // Set a different color specifically for Hover
-    await user.selectOptions(stateSelect, "hover");
-    await user.clear(backgroundInput);
-    await user.type(backgroundInput, "#abcdef");
+    changeColor(backgroundInput, "#abcdef");
 
-    // Normal keeps its original color
-    await user.selectOptions(stateSelect, "normal");
-
-    expect(backgroundInput).toHaveValue("#123456");
-
-    // Hover retains its own override
-    await user.selectOptions(stateSelect, "hover");
-
-    expect(backgroundInput).toHaveValue("#abcdef");
     expect(button).toHaveStyle({
       backgroundColor: "#abcdef",
     });
+
+    await user.selectOptions(stateSelect, "normal");
+
+    expect(backgroundInput).toHaveValue("#abcdef");
+
+    const savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
+    );
+
+    expect(savedWorkspace.components.button.styles.normal.backgroundColor).toBe(
+      "#abcdef",
+    );
+
+    expect(
+      savedWorkspace.components.button.styles.hover.backgroundColor,
+    ).toBeUndefined();
   });
 
   it("updates the Input label and placeholder in the preview", async () => {
@@ -295,10 +404,8 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "input",
-    );
+    await user.click(screen.getByRole("button", { name: "Content" }));
+    await user.selectOptions(screen.getByLabelText("Component"), "input");
 
     const labelControl = screen.getByLabelText("Input label");
     const placeholderControl = screen.getByLabelText("Placeholder");
@@ -321,20 +428,17 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "input",
-    );
+    await user.selectOptions(screen.getByLabelText("Component"), "input");
 
     const backgroundInput = screen.getByLabelText("Background color");
     const textColorInput = screen.getByLabelText("Text color");
     const borderRadiusInput = screen.getByLabelText("Border radius");
     const paddingInput = screen.getByLabelText("Padding");
 
-    await user.type(backgroundInput, "#123456");
-    await user.type(textColorInput, "#ffffff");
-    await user.type(borderRadiusInput, "12px");
-    await user.type(paddingInput, "16px");
+    changeColor(backgroundInput, "#123456");
+    changeColor(textColorInput, "#ffffff");
+    changeNumber(borderRadiusInput, 12);
+    changeNumber(paddingInput, 16);
 
     const previewInput = screen.getByRole("textbox", {
       name: "Email",
@@ -353,12 +457,9 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "input",
-    );
+    await user.selectOptions(screen.getByLabelText("Component"), "input");
 
-    const stateSelect = screen.getByLabelText("Select style state");
+    const stateSelect = screen.getByLabelText("Style state");
 
     const previewInput = screen.getByRole("textbox", {
       name: "Email",
@@ -392,19 +493,16 @@ describe("Studio workspace", () => {
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select component"),
-      "input",
-    );
+    await user.selectOptions(screen.getByLabelText("Component"), "input");
 
-    const stateSelect = screen.getByLabelText("Select style state");
+    const stateSelect = screen.getByLabelText("Style state");
     const backgroundControl = screen.getByLabelText("Background color");
 
     const previewInput = screen.getByRole("textbox", {
       name: "Email",
     });
 
-    await user.type(backgroundControl, "#123456");
+    changeColor(backgroundControl, "#123456");
 
     await user.selectOptions(stateSelect, "hover");
 
@@ -423,34 +521,77 @@ describe("Studio workspace", () => {
     });
   });
 
-  it("keeps style settings independent between Normal and Hover", async () => {
+  it("updates base numeric styles when an interaction state is selected", async () => {
     const user = userEvent.setup();
 
     renderStudio();
 
-    await user.selectOptions(
-      screen.getByLabelText("Select style state"),
-      "hover",
+    await user.selectOptions(screen.getByLabelText("Component"), "button");
+    await user.selectOptions(screen.getByLabelText("Style state"), "hover");
+
+    const borderRadiusInput = screen.getByLabelText("Border radius");
+    const button = screen.getByRole("button", { name: "Click Me" });
+
+    changeNumber(borderRadiusInput, 18);
+
+    expect(button).toHaveStyle({
+      borderRadius: "18px",
+    });
+
+    await user.selectOptions(screen.getByLabelText("Style state"), "normal");
+
+    expect(borderRadiusInput).toHaveValue("18");
+    expect(button).toHaveStyle({
+      borderRadius: "18px",
+    });
+
+    await user.selectOptions(screen.getByLabelText("Style state"), "hover");
+
+    expect(borderRadiusInput).toHaveValue("18");
+    expect(button).toHaveStyle({
+      borderRadius: "18px",
+    });
+  });
+
+  it("supports zero and prevents negative numeric style values", async () => {
+    const user = userEvent.setup();
+
+    renderStudio();
+
+    await user.selectOptions(screen.getByLabelText("Component"), "input");
+
+    const borderRadiusInput = screen.getByLabelText("Border radius");
+    const previewInput = screen.getByRole("textbox", {
+      name: "Email",
+    });
+
+    expect(borderRadiusInput).toHaveAttribute("min", "0");
+    expect(borderRadiusInput).toHaveAttribute("step", "1");
+
+    changeNumber(borderRadiusInput, 0);
+
+    expect(previewInput).toHaveStyle({
+      borderRadius: "0px",
+    });
+
+    let savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
     );
 
-    const backgroundInput = screen.getByLabelText("Background color");
-
-    await user.type(backgroundInput, "#123456");
-
-    expect(backgroundInput).toHaveValue("#123456");
-
-    await user.selectOptions(
-      screen.getByLabelText("Select style state"),
-      "normal",
+    expect(savedWorkspace.components.input.styles.normal.borderRadius).toBe(
+      "0px",
     );
 
-    expect(screen.getByLabelText("Background color")).toHaveValue("");
+    changeNumber(borderRadiusInput, -2);
 
-    await user.selectOptions(
-      screen.getByLabelText("Select style state"),
-      "hover",
+    savedWorkspace = JSON.parse(localStorage.getItem(WORKSPACE_STORAGE_KEY));
+
+    expect(savedWorkspace.components.input.styles.normal.borderRadius).toBe(
+      "0px",
     );
 
-    expect(screen.getByLabelText("Background color")).toHaveValue("#123456");
+    expect(previewInput).toHaveStyle({
+      borderRadius: "0px",
+    });
   });
 });

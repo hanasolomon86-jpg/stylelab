@@ -79,7 +79,12 @@
   padding: 40px 32px;
   overflow: hidden;
   border-radius: 24px;
-  background: linear-gradient(145deg, #f8fafc, #eef2ff);
+  background: linear-gradient(
+  145deg,
+  #172235,
+  #101827
+);
+  border: 1px solid #2a3850;
   transition: background 0.35s ease;
 }
 
@@ -90,12 +95,18 @@
 
 /* Glassmorphism environment */
 .preview-stage--glassmorphism {
-  background: linear-gradient(
-    135deg,
-    #c4b5fd 0%,
-    #a5b4fc 48%,
-    #67e8f9 100%
-  );
+  background:
+    radial-gradient(
+      ellipse at 15% 20%,
+      rgba(139, 92, 246, 0.35),
+      transparent 42%
+    ),
+    radial-gradient(
+      ellipse at 85% 80%,
+      rgba(34, 211, 238, 0.2),
+      transparent 42%
+    ),
+    linear-gradient(145deg, #172235, #101827);
 }
 
 .preview-stage--glassmorphism::before,
@@ -134,8 +145,8 @@
 .preview-stage--neumorphism {
   background: linear-gradient(
     145deg,
-    #eef0f7,
-    #dfe3ee
+    #26344a,
+    #182437
   );
 }
 
@@ -427,3 +438,23 @@
   outline-offset: 1px;
 }
 
+/* Input - Strong Error State */
+.input-preview.input-preview--error {
+  border: 2px solid #ef4444;
+  outline: 2px solid rgba(239, 68, 68, 0.24);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 4px rgba(239, 68, 68, 0.14),
+    0 0 16px rgba(239, 68, 68, 0.22);
+}
+
+/* Preserve strong Error State with design effects */
+.input-preview.input-preview--error.design-effect--glassmorphism,
+.input-preview.input-preview--error.design-effect--neumorphism {
+  border: 2px solid #ef4444;
+  outline: 2px solid rgba(239, 68, 68, 0.32);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 4px rgba(239, 68, 68, 0.18),
+    0 0 18px rgba(239, 68, 68, 0.26);
+}

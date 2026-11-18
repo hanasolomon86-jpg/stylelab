@@ -183,6 +183,76 @@ describe('workspaceStorage', () => {
         expect(loadedWorkspace.components.card.designEffect).toBe('none');
     });
 
+    it('preserves Normal styles and removes legacy overrides when loading an older workspace', () => {
+        const legacyWorkspace = createInitialWorkspace();
+
+        legacyWorkspace.components.card.content.title = 'My Product';
+
+        legacyWorkspace.components.card.styles.normal = {
+            backgroundColor: '#123456',
+            borderRadius: '18px',
+        };
+
+        legacyWorkspace.components.card.styles.hover = {
+            backgroundColor: '#abcdef',
+            padding: '24px',
+        };
+
+        legacyWorkspace.components.card.styles.focus = {
+            backgroundColor: '#654321',
+        };
+
+        legacyWorkspace.components.card.styles.disabled = {
+            color: '#999999',
+        };
+
+        legacyWorkspace.components.card.styles.error = {
+            borderRadius: '30px',
+        };
+
+        // Simulate data saved by the previous version.
+        localStorage.setItem(
+            WORKSPACE_STORAGE_KEY,
+            JSON.stringify(legacyWorkspace),
+        );
+
+        const loadedWorkspace = loadWorkspace();
+
+        // Preserve the base styles.
+        expect(loadedWorkspace.components.card.styles.normal).toEqual({
+            backgroundColor: '#123456',
+            borderRadius: '18px',
+        });
+
+        // Remove all legacy interaction-state overrides.
+        ['hover', 'focus', 'disabled', 'error'].forEach((styleState) => {
+            expect(
+                loadedWorkspace.components.card.styles[styleState],
+            ).toEqual({});
+        });
+
+        // Preserve existing component content.
+        expect(loadedWorkspace.components.card.content.title).toBe('My Product');
+
+        // Save the normalized workspace again.
+        expect(saveWorkspace(loadedWorkspace)).toBe(true);
+
+        const savedWorkspace = JSON.parse(
+            localStorage.getItem(WORKSPACE_STORAGE_KEY),
+        );
+
+        expect(savedWorkspace.components.card.styles.normal).toEqual({
+            backgroundColor: '#123456',
+            borderRadius: '18px',
+        });
+
+        ['hover', 'focus', 'disabled', 'error'].forEach((styleState) => {
+            expect(
+                savedWorkspace.components.card.styles[styleState],
+            ).toEqual({});
+        });
+    });
+
     it('handles storage errors when saving', () => {
         const unavailableStorage = {
             setItem() {

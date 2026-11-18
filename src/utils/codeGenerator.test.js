@@ -47,7 +47,7 @@ describe("codeGenerator", () => {
     });
 
     describe("resolveStylesByState", () => {
-        it("inherits Normal styles across all states", () => {
+        it("keeps Normal as the only source of component styles", () => {
             const styles = resolveStylesByState({
                 normal: {
                     backgroundColor: "#ffffff",
@@ -55,17 +55,18 @@ describe("codeGenerator", () => {
                 },
             });
 
-            expect(styles.hover).toEqual({
+            expect(styles.normal).toEqual({
                 backgroundColor: "#ffffff",
                 color: "#111111",
             });
 
-            expect(styles.focus).toEqual(styles.hover);
-            expect(styles.disabled).toEqual(styles.hover);
-            expect(styles.error).toEqual(styles.hover);
+            expect(styles.hover).toEqual({});
+            expect(styles.focus).toEqual({});
+            expect(styles.disabled).toEqual({});
+            expect(styles.error).toEqual({});
         });
 
-        it("allows state-specific styles to override Normal styles", () => {
+        it("ignores legacy state-specific style overrides", () => {
             const styles = resolveStylesByState({
                 normal: {
                     backgroundColor: "#ffffff",
@@ -74,12 +75,14 @@ describe("codeGenerator", () => {
                 hover: {
                     backgroundColor: "#123456",
                 },
+                focus: {
+                    color: "#abcdef",
+                },
             });
 
-            expect(styles.hover).toEqual({
-                backgroundColor: "#123456",
-                color: "#111111",
-            });
+            expect(styles.normal.backgroundColor).toBe("#ffffff");
+            expect(styles.hover).toEqual({});
+            expect(styles.focus).toEqual({});
         });
 
         it("does not mutate the original styles", () => {
@@ -143,18 +146,17 @@ describe("codeGenerator", () => {
             );
 
             expect(options.componentId).toBe("card");
-            expect(options.activeStyleState).toBe("normal");
             expect(options.designEffect).toBe("none");
             expect(options.format).toBe("jsx");
         });
 
-        it("falls back to Normal for an invalid style state", () => {
+        it("does not include the preview state in generator options", () => {
             const options = normalizeGeneratorOptions({
                 ...createOptions("button"),
-                activeStyleState: "invalid",
+                activeStyleState: "hover",
             });
 
-            expect(options.activeStyleState).toBe("normal");
+            expect(options).not.toHaveProperty("activeStyleState");
         });
 
         it("falls back to none for an invalid design effect", () => {
@@ -240,31 +242,43 @@ describe("codeGenerator", () => {
                 }),
             );
 
+            expect(code).toContain("<h3");
+            expect(code).toContain("</h3>");
             expect(code).toContain(
-                `<h3>{${JSON.stringify(title)}}</h3>`,
+                `{${JSON.stringify(title)}}`,
             );
         });
 
-        it("generates a disabled Button correctly", () => {
-            const code = generateJsx({
+        it("does not change Button JSX based on the preview state", () => {
+            const normalCode = generateJsx({
+                ...createOptions("button"),
+                activeStyleState: "normal",
+            });
+
+            const disabledCode = generateJsx({
                 ...createOptions("button"),
                 activeStyleState: "disabled",
             });
 
-            expect(code).toContain("disabled");
-            expect(code).toContain(
-                "stylelab-preview-state--disabled",
-            );
+            expect(disabledCode).toBe(normalCode);
+            expect(disabledCode).not.toContain("disabled");
+            expect(disabledCode).not.toContain("stylelab-preview-state");
         });
 
-        it("generates an Input with an error indication", () => {
-            const code = generateJsx({
+        it("does not change Input JSX based on the preview state", () => {
+            const normalCode = generateJsx({
+                ...createOptions("input"),
+                activeStyleState: "normal",
+            });
+
+            const errorCode = generateJsx({
                 ...createOptions("input"),
                 activeStyleState: "error",
             });
 
-            expect(code).toContain('aria-invalid="true"');
-            expect(code).toContain("stylelab-input");
+            expect(errorCode).toBe(normalCode);
+            expect(errorCode).not.toContain('aria-invalid="true"');
+            expect(errorCode).not.toContain("stylelab-preview-state");
         });
     });
 
@@ -284,7 +298,7 @@ describe("codeGenerator", () => {
             },
         );
 
-        it("generates custom styles and Normal inheritance", () => {
+        it("generates only Normal styles and ignores legacy state overrides", () => {
             const css = generateCss(
                 createOptions("button", {
                     styles: {
@@ -303,9 +317,7 @@ describe("codeGenerator", () => {
                 "--component-background: #123456;",
             );
 
-            expect(css).toContain(
-                "--component-background: #abcdef;",
-            );
+            expect(css).not.toContain("#abcdef");
 
             expect(css).toContain("border-radius: 12px;");
         });
@@ -367,7 +379,7 @@ describe("codeGenerator", () => {
 
     describe("generateTailwind", () => {
         it.each(["card", "button", "input"])(
-            "generates Tailwind JSX for %s",
+            "generates Tailwind JSX with base styles and interaction classes for %s",
             (componentId) => {
                 const code = generateTailwind(
                     createOptions(componentId),
@@ -375,7 +387,9 @@ describe("codeGenerator", () => {
 
                 expect(code).toContain("className=");
                 expect(code).toContain("transition-all");
-                expect(code).toContain("data-style-state");
+                expect(code).toContain("hover:");
+                expect(code).toContain("focus-visible:");
+                expect(code).not.toContain("data-style-state");
             },
         );
 
@@ -394,7 +408,7 @@ describe("codeGenerator", () => {
             expect(code).toContain("group");
         });
 
-        it("generates custom utility classes for Button styles", () => {
+        it("generates only Normal utility classes and ignores legacy state overrides", () => {
             const code = generateTailwind(
                 createOptions("button", {
                     styles: {
@@ -412,27 +426,42 @@ describe("codeGenerator", () => {
                 "[--component-background:#123456]",
             );
 
-            expect(code).toContain(
-                "data-[style-state=hover]:[--component-background:#abcdef]",
-            );
+            expect(code).not.toContain("#abcdef");
+            expect(code).not.toContain("data-[style-state=hover]");
         });
 
-        it("generates disabled and error state attributes", () => {
-            const disabledCode = generateTailwind({
+        it("does not change Tailwind JSX based on the preview state", () => {
+            const normalButtonCode = generateTailwind({
+                ...createOptions("button"),
+                activeStyleState: "normal",
+            });
+
+            const disabledButtonCode = generateTailwind({
                 ...createOptions("button"),
                 activeStyleState: "disabled",
             });
 
-            const errorCode = generateTailwind({
+            const normalInputCode = generateTailwind({
+                ...createOptions("input"),
+                activeStyleState: "normal",
+            });
+
+            const errorInputCode = generateTailwind({
                 ...createOptions("input"),
                 activeStyleState: "error",
             });
 
-            expect(disabledCode).toContain("disabled");
-            expect(disabledCode).toContain("disabled:opacity-45");
+            expect(disabledButtonCode).toBe(normalButtonCode);
+            expect(errorInputCode).toBe(normalInputCode);
 
-            expect(errorCode).toContain('aria-invalid="true"');
-            expect(errorCode).toContain("aria-[invalid=true]:border-red-600");
+            expect(normalButtonCode).toContain("disabled:opacity-50");
+
+            expect(normalInputCode).toContain(
+                "aria-[invalid=true]:[border:2px_solid_#ef4444]",
+            );
+
+            expect(disabledButtonCode).not.toContain('aria-invalid="true"');
+            expect(errorInputCode).not.toContain('aria-invalid="true"');
         });
 
         it("includes Glassmorphism and Neumorphism utilities", () => {
