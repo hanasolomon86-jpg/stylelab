@@ -30,6 +30,22 @@
   overflow: hidden;
   flex-shrink: 0;
   background-color: #e2e8f0;
+  position: relative;
+  isolation: isolate;
+}
+
+.card__image--with-image::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  z-index: 0;
+  background-image: var(--card-image-background);
+  background-position: center;
+  background-size: cover;
+  filter: blur(14px);
+  opacity: 0.55;
+  transform: scale(1.08);
+  pointer-events: none;
 }
 
 .card__image img {
@@ -66,7 +82,7 @@
 .card__content {
   flex: 1;
   min-width: 0;
-  padding: 20px;
+  padding: 0;
 }
 
 .card__title {
@@ -80,15 +96,139 @@
   overflow-wrap: anywhere;
 }
 
+/* =========================================
+   Natural Image Dimensions in Live Preview
+   ========================================= */
+
+.preview-stage > .card {
+  width: min(100%, 380px);
+  height: auto;
+  min-height: 0;
+}
+
+/* Image on top */
+.preview-stage > .card.card--top {
+  flex-direction: column;
+}
+
+.preview-stage > .card.card--top > .card__image {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  overflow: hidden;
+}
+
+.preview-stage > .card.card--top > .card__image img {
+  position: static;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Placeholder when no image is selected */
+.preview-stage > .card.card--top > .card__image--placeholder {
+  aspect-ratio: 16 / 9;
+  min-height: 180px;
+}
+
+/* Image on left */
+.preview-stage > .card.card--left {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.preview-stage > .card.card--left > .card__image {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 40%;
+  width: 40%;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.preview-stage > .card.card--left > .card__image img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Content */
+.preview-stage > .card.card--top > .card__content {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.preview-stage > .card.card--left > .card__content {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
 /* Responsive layout */
 @media (max-width: 600px) {
-  .card--left {
+  .preview-stage > .card.card--left {
     flex-direction: column;
   }
 
-  .card--left .card__image {
-    flex-basis: auto;
+  .preview-stage > .card.card--left > .card__image {
+    flex: 0 0 auto;
     width: 100%;
+    height: auto;
     aspect-ratio: 16 / 9;
   }
+}
+
+/* Center content when the card image is on the left */
+
+.card--left {
+  gap: 16px;
+}
+
+.card--left > .card__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Refined card typography and content alignment */
+
+/* Slightly smaller typography */
+.card__title {
+  font-size: 19px;
+}
+
+.card__description {
+  font-size: 15px;
+}
+
+/* Image on top: center content horizontally */
+.card--top > .card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Image on left: center content vertically */
+.card--left > .card__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
 }

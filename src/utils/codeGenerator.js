@@ -12,23 +12,18 @@ export const CODE_FORMATS = ["jsx", "css", "tailwind"];
  * Resolves the final styles for each state.
  * Every state inherits Normal styles unless it overrides them.
  */
+/**
+ * Keeps Normal as the only source of component styles.
+ * Interaction states do not contain independent style values.
+ */
 export function resolveStylesByState(styles = {}) {
     const normalStyles = { ...(styles.normal ?? {}) };
 
     return Object.fromEntries(
-        STYLE_STATES.map((styleState) => {
-            if (styleState === "normal") {
-                return [styleState, { ...normalStyles }];
-            }
-
-            return [
-                styleState,
-                {
-                    ...normalStyles,
-                    ...(styles[styleState] ?? {}),
-                },
-            ];
-        }),
+        STYLE_STATES.map((styleState) => [
+            styleState,
+            styleState === "normal" ? { ...normalStyles } : {},
+        ]),
     );
 }
 
@@ -48,9 +43,7 @@ export function resolveImageSource(imageId) {
         return null;
     }
 
-    const selectedImage = IMAGE_GALLERY.find(
-        (image) => image.id === imageId,
-    );
+    const selectedImage = IMAGE_GALLERY.find((image) => image.id === imageId);
 
     return selectedImage?.src ?? null;
 }
@@ -62,7 +55,6 @@ export function normalizeGeneratorOptions(options = {}) {
     const {
         componentId,
         componentData,
-        activeStyleState = "normal",
         format = "jsx",
     } = options;
 
@@ -85,9 +77,6 @@ export function normalizeGeneratorOptions(options = {}) {
         componentData,
         content: componentData.content ?? {},
         styles,
-        activeStyleState: STYLE_STATES.includes(activeStyleState)
-            ? activeStyleState
-            : "normal",
         designEffect: DESIGN_EFFECTS.includes(componentData.designEffect)
             ? componentData.designEffect
             : "none",
@@ -103,22 +92,15 @@ export function normalizeGeneratorOptions(options = {}) {
     };
 }
 
-
 /**
  * Creates a generated CSS class name for the selected component.
  */
 function getGeneratedClassName(options) {
-    const {
-        componentId,
-        designEffect,
-        activeStyleState,
-        layout,
-    } = options;
+    const { componentId, designEffect, layout } = options;
 
     const classes = [
         `stylelab-${componentId}`,
         `stylelab-${componentId}--effect-${designEffect}`,
-        `stylelab-preview-state--${activeStyleState}`,
     ];
 
     if (componentId === "card") {
@@ -137,18 +119,10 @@ export function generateJsx(options) {
         format: "jsx",
     });
 
-    const {
-        componentId,
-        content,
-        activeStyleState,
-        imageSrc,
-    } = config;
+    const { componentId, content, imageSrc } = config;
 
     const className = getGeneratedClassName(config);
     const cssImport = `import "./${componentId}.css";`;
-
-    const isDisabled = activeStyleState === "disabled";
-    const isError = activeStyleState === "error";
 
     if (componentId === "card") {
         const imageMarkup = imageSrc
@@ -167,12 +141,14 @@ export default function GeneratedCard() {
     <article
       className=${escapeJsxString(className)}
       tabIndex={0}
-      ${isDisabled ? 'aria-disabled="true"' : ""}
-      ${isError ? 'aria-invalid="true"' : ""}
     >
       ${imageMarkup}
       <div className="stylelab-card__content">
-        <h3>{${escapeJsxString(content.title)}}</h3>
+        <h3
+            style={{ color: "var(--component-title-color, var(--component-color, #302d43))" }}
+        >
+            {${escapeJsxString(content.title)}}
+        </h3>
         <p>{${escapeJsxString(content.description)}}</p>
       </div>
     </article>
@@ -188,8 +164,6 @@ export default function GeneratedButton() {
     <button
       type="button"
       className=${escapeJsxString(className)}
-      ${isDisabled ? "disabled" : ""}
-      ${isError ? 'aria-invalid="true"' : ""}
     >
       {${escapeJsxString(content.label)}}
     </button>
@@ -210,18 +184,16 @@ export default function GeneratedInput() {
         type="text"
         className=${escapeJsxString(className)}
         placeholder=${escapeJsxString(content.placeholder)}
-        ${isDisabled ? "disabled" : ""}
-        ${isError ? 'aria-invalid="true"' : ""}
       />
     </div>
   );
 }`;
 }
 
-
 const CSS_PROPERTY_MAP = {
     backgroundColor: "--component-background",
     color: "--component-color",
+    titleColor: "--component-title-color",
     borderRadius: "border-radius",
     padding: "padding",
 };
@@ -236,56 +208,13 @@ function sanitizeCssValue(value) {
 
     const normalizedValue = String(value).trim();
 
-    if (
-        !normalizedValue ||
-        /[;{}\r\n]/.test(normalizedValue)
-    ) {
+    if (!normalizedValue || /[;{}\r\n]/.test(normalizedValue)) {
         return null;
     }
 
     return normalizedValue;
 }
 
-/**
- * Returns real interaction selectors and preview selectors
- * for a specific style state.
- */
-function getCssStateSelectors(componentId, styleState) {
-    const selector = `.stylelab-${componentId}`;
-
-    switch (styleState) {
-        case "normal":
-            return [selector];
-
-        case "hover":
-            return [
-                `${selector}:hover`,
-                `${selector}.stylelab-preview-state--hover`,
-            ];
-
-        case "focus":
-            return [
-                `${selector}:focus-visible`,
-                `${selector}.stylelab-preview-state--focus`,
-            ];
-
-        case "disabled":
-            return [
-                `${selector}:disabled`,
-                `${selector}[aria-disabled="true"]`,
-                `${selector}.stylelab-preview-state--disabled`,
-            ];
-
-        case "error":
-            return [
-                `${selector}[aria-invalid="true"]`,
-                `${selector}.stylelab-preview-state--error`,
-            ];
-
-        default:
-            return [];
-    }
-}
 
 /**
  * Converts resolved component styles into CSS declarations.
@@ -294,24 +223,20 @@ function createCssDeclarations(componentId, styles = {}) {
     const declarations = [];
     const contentDeclarations = [];
 
-    Object.entries(CSS_PROPERTY_MAP).forEach(
-        ([styleProperty, cssProperty]) => {
-            const value = sanitizeCssValue(styles[styleProperty]);
+    Object.entries(CSS_PROPERTY_MAP).forEach(([styleProperty, cssProperty]) => {
+        const value = sanitizeCssValue(styles[styleProperty]);
 
-            if (value === null) {
-                return;
-            }
+        if (value === null) {
+            return;
+        }
 
-            if (styleProperty === "padding" && componentId === "card") {
-                contentDeclarations.push(
-                    `padding: ${value};`,
-                );
-                return;
-            }
+        if (styleProperty === "padding" && componentId === "card") {
+            contentDeclarations.push(`padding: ${value};`);
+            return;
+        }
 
-            declarations.push(`${cssProperty}: ${value};`);
-        },
-    );
+        declarations.push(`${cssProperty}: ${value};`);
+    });
 
     return {
         declarations,
@@ -320,49 +245,31 @@ function createCssDeclarations(componentId, styles = {}) {
 }
 
 /**
- * Generates CSS rules for all five style states.
- * Resolved styles already include Normal inheritance.
+ * Generates the component's base CSS declarations from Normal styles.
  */
-function generateStateCss(componentId, stylesByState) {
-    return STYLE_STATES.map((styleState) => {
-        const selectors = getCssStateSelectors(
-            componentId,
-            styleState,
+function generateBaseStyleCss(componentId, styles = {}) {
+    const { declarations, contentDeclarations } = createCssDeclarations(
+        componentId,
+        styles,
+    );
+
+    const selector = `.stylelab-${componentId}`;
+    const rules = [];
+
+    if (declarations.length > 0) {
+        rules.push(
+            `${selector} {\n  ${declarations.join("\n  ")}\n}`,
         );
+    }
 
-        const {
-            declarations,
-            contentDeclarations,
-        } = createCssDeclarations(
-            componentId,
-            stylesByState[styleState],
+    if (componentId === "card" && contentDeclarations.length > 0) {
+        rules.push(
+            `${selector} .stylelab-card__content {\n  ${contentDeclarations.join("\n  ")}\n}`,
         );
+    }
 
-        const rules = [];
-
-        if (declarations.length > 0) {
-            rules.push(
-                `${selectors.join(",\n")} {\n  ${declarations.join("\n  ")}\n}`,
-            );
-        }
-
-        if (
-            componentId === "card" &&
-            contentDeclarations.length > 0
-        ) {
-            const contentSelectors = selectors.map(
-                (selector) => `${selector} .stylelab-card__content`,
-            );
-
-            rules.push(
-                `${contentSelectors.join(",\n")} {\n  ${contentDeclarations.join("\n  ")}\n}`,
-            );
-        }
-
-        return rules.join("\n\n");
-    }).filter(Boolean).join("\n\n");
+    return rules.join("\n\n");
 }
-
 
 /**
  * Generates the standalone base styles for one component.
@@ -412,6 +319,7 @@ function generateBaseComponentCss(componentId) {
 .stylelab-card__content h3 {
   margin: 0 0 8px;
   font-size: 20px;
+  color: var(--component-title-color, var(--component-color, #302d43));
 }
 
 .stylelab-card__content p {
@@ -486,10 +394,14 @@ function generateBaseComponentCss(componentId) {
 }
 
 /**
- * Generates default visual styles for all five states.
+ * Generates component-specific CSS for real interaction states.
  */
-function generateDefaultStateCss(componentId) {
+function generateDefaultStateCss(componentId, designEffect = "none") {
     const selector = `.stylelab-${componentId}`;
+    const effectSelector = `${selector}--effect-${designEffect}`;
+    const hasSpecialEffect = ["glassmorphism", "neumorphism"].includes(
+        designEffect,
+    );
 
     const hoverStyles = {
         card: `
@@ -499,37 +411,98 @@ function generateDefaultStateCss(componentId) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);`,
         input: `
-  border-color: #aa3bff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);`,
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  transform: translateY(-1px);`,
     };
 
+    const disabledStyles = {
+        card: `
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+  transform: none;`,
+        button: `
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;`,
+        input: `
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--code-bg);`,
+    };
+
+    const errorStyles = {
+        card: `
+  border-color: #dc2626;
+  outline: 1px solid rgba(220, 38, 38, 0.25);
+  outline-offset: 1px;`,
+        button: `
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);`,
+        input: `
+  border: 2px solid #ef4444;
+  outline: 2px solid rgba(239, 68, 68, 0.24);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 4px rgba(239, 68, 68, 0.14),
+    0 0 16px rgba(239, 68, 68, 0.22);`,
+    };
+
+    const effectHoverStyles = {
+        button: "filter: brightness(1.06);",
+        input: "filter: brightness(1.04);",
+    };
+
+    const specialEffectRules = [];
+
+    if (hasSpecialEffect && effectHoverStyles[componentId]) {
+        specialEffectRules.push(`
+${effectSelector}:hover {
+  ${effectHoverStyles[componentId]}
+}`);
+    }
+
+    if (hasSpecialEffect && ["button", "input"].includes(componentId)) {
+        specialEffectRules.push(`
+${effectSelector}:disabled {
+  opacity: 0.45;
+  filter: grayscale(0.35);
+  transform: none;
+}`);
+    }
+
+    if (hasSpecialEffect && componentId === "input") {
+        specialEffectRules.push(`
+${effectSelector}[aria-invalid="true"] {
+  outline: 2px solid rgba(239, 68, 68, 0.32);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 4px rgba(239, 68, 68, 0.18),
+    0 0 18px rgba(239, 68, 68, 0.26);
+}`);
+    }
+
     return `
-${selector}:hover,
-${selector}.stylelab-preview-state--hover {
+${selector}:hover {
   ${hoverStyles[componentId]}
 }
 
-${selector}:focus-visible,
-${selector}.stylelab-preview-state--focus {
+${selector}:focus-visible {
   outline: 3px solid #aa3bff;
   outline-offset: 3px;
 }
 
 ${selector}:disabled,
-${selector}[aria-disabled="true"],
-${selector}.stylelab-preview-state--disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  filter: grayscale(0.35);
-  transform: none;
+${selector}[aria-disabled="true"] {
+  ${disabledStyles[componentId]}
 }
 
-${selector}[aria-invalid="true"],
-${selector}.stylelab-preview-state--error {
-  border-color: #dc2626;
-  outline: 1px solid rgba(220, 38, 38, 0.25);
-  outline-offset: 1px;
-}`;
+${selector}[aria-invalid="true"] {
+  ${errorStyles[componentId]}
+}
+
+${specialEffectRules.join("\n\n")}`;
 }
 
 /**
@@ -540,8 +513,7 @@ function generateDesignEffectCss(componentId, designEffect) {
         return "";
     }
 
-    const selector =
-        `.stylelab-${componentId}--effect-${designEffect}`;
+    const selector = `.stylelab-${componentId}--effect-${designEffect}`;
 
     if (designEffect === "glassmorphism") {
         return `
@@ -612,23 +584,18 @@ export function generateCss(options) {
         format: "css",
     });
 
-    const {
-        componentId,
-        styles,
-        designEffect,
-    } = config;
+    const { componentId, styles, designEffect } = config;
 
     const sections = [
         `/* Generated by StyleLab - ${componentId} */`,
         generateBaseComponentCss(componentId),
-        generateDefaultStateCss(componentId),
+        generateDefaultStateCss(componentId, designEffect),
         generateDesignEffectCss(componentId, designEffect),
-        generateStateCss(componentId, styles),
+        generateBaseStyleCss(componentId, styles.normal),
     ];
 
     return sections.filter(Boolean).join("\n\n").trim() + "\n";
 }
-
 
 /**
  * Converts a safe CSS value into a Tailwind arbitrary value.
@@ -640,14 +607,9 @@ function toTailwindValue(value) {
         return null;
     }
 
-    const hasUnsupportedCharacters = [
-        "[",
-        "]",
-        '"',
-        "'",
-        "`",
-        "\\",
-    ].some((character) => sanitized.includes(character));
+    const hasUnsupportedCharacters = ["[", "]", '"', "'", "`", "\\"].some(
+        (character) => sanitized.includes(character),
+    );
 
     if (hasUnsupportedCharacters) {
         return null;
@@ -670,59 +632,18 @@ function createTailwindPropertyClass(property, value, prefix = "") {
 }
 
 /**
- * Returns the Tailwind variants for a style state.
- */
-function getTailwindStateVariants(componentId, styleState, target) {
-    const isCardContent = componentId === "card" && target === "content";
-    const groupPrefix = isCardContent ? "group-" : "";
-
-    const dataVariant =
-        isCardContent
-            ? `group-data-[style-state=${styleState}]:`
-            : `data-[style-state=${styleState}]:`;
-
-    if (styleState === "normal") {
-        return [""];
-    }
-
-    let interactionVariant;
-
-    switch (styleState) {
-        case "hover":
-            interactionVariant = `${groupPrefix}hover:`;
-            break;
-
-        case "focus":
-            interactionVariant = `${groupPrefix}focus-visible:`;
-            break;
-
-        case "disabled":
-            interactionVariant =
-                componentId === "card"
-                    ? `${groupPrefix}aria-disabled:`
-                    : `${groupPrefix}disabled:`;
-            break;
-
-        case "error":
-            interactionVariant = isCardContent
-                ? "group-aria-[invalid=true]:"
-                : "aria-[invalid=true]:";
-            break;
-
-        default:
-            return [];
-    }
-
-    return [interactionVariant, dataVariant];
-}
-
-/**
  * Creates Tailwind classes for component style properties.
  */
-function createTailwindStyles(componentId, styles = {}, variant = "", target = "root") {
+function createTailwindStyles(
+    componentId,
+    styles = {},
+    variant = "",
+    target = "root",
+) {
     const propertyMap = {
         backgroundColor: "--component-background",
         color: "--component-color",
+        titleColor: "--component-title-color",
         borderRadius: "border-radius",
         padding: "padding",
     };
@@ -744,33 +665,6 @@ function createTailwindStyles(componentId, styles = {}, variant = "", target = "
         .filter(Boolean);
 }
 
-/**
- * Generates Tailwind classes for all five style states.
- */
-function generateTailwindStateStyles(componentId, stylesByState, target) {
-    const classes = [];
-
-    STYLE_STATES.forEach((styleState) => {
-        const variants = getTailwindStateVariants(
-            componentId,
-            styleState,
-            target,
-        );
-
-        variants.forEach((variant) => {
-            classes.push(
-                ...createTailwindStyles(
-                    componentId,
-                    stylesByState[styleState],
-                    variant,
-                    target,
-                ),
-            );
-        });
-    });
-
-    return classes;
-}
 
 /**
  * Returns design effect utility classes.
@@ -792,9 +686,10 @@ function getTailwindEffectClasses(componentId, designEffect) {
         ];
     }
 
-    const shadow = componentId === "input"
-        ? "[box-shadow:inset_5px_5px_10px_rgba(91,96,125,0.18),inset_-5px_-5px_10px_rgba(255,255,255,0.95),0_2px_5px_rgba(91,96,125,0.08)]"
-        : "[box-shadow:10px_10px_22px_rgba(91,96,125,0.22),-10px_-10px_22px_rgba(255,255,255,0.9),inset_2px_2px_4px_rgba(255,255,255,0.65),inset_-2px_-2px_4px_rgba(70,65,100,0.12)]";
+    const shadow =
+        componentId === "input"
+            ? "[box-shadow:inset_5px_5px_10px_rgba(91,96,125,0.18),inset_-5px_-5px_10px_rgba(255,255,255,0.95),0_2px_5px_rgba(91,96,125,0.08)]"
+            : "[box-shadow:10px_10px_22px_rgba(91,96,125,0.22),-10px_-10px_22px_rgba(255,255,255,0.9),inset_2px_2px_4px_rgba(255,255,255,0.65),inset_-2px_-2px_4px_rgba(70,65,100,0.12)]";
 
     return [
         "[background-color:color-mix(in_srgb,var(--component-background,#ffffff)_18%,#eef0f7_82%)]",
@@ -807,47 +702,96 @@ function getTailwindEffectClasses(componentId, designEffect) {
 }
 
 /**
- * Generates the utility classes for the five visual states.
+ * Generates Tailwind classes for component-specific interactions.
  */
-function getTailwindBehaviorClasses(componentId) {
+function getTailwindBehaviorClasses(componentId, designEffect) {
+    const hasSpecialEffect = ["glassmorphism", "neumorphism"].includes(
+        designEffect,
+    );
+
     const hoverClasses = {
         card: [
             "hover:-translate-y-[3px]",
             "hover:drop-shadow-[0_10px_12px_rgba(31,38,135,0.2)]",
-            "data-[style-state=hover]:-translate-y-[3px]",
-            "data-[style-state=hover]:drop-shadow-[0_10px_12px_rgba(31,38,135,0.2)]",
         ],
         button: [
             "hover:-translate-y-0.5",
-            "hover:shadow-md",
-            "data-[style-state=hover]:-translate-y-0.5",
-            "data-[style-state=hover]:shadow-md",
+            "hover:[box-shadow:0_4px_12px_rgba(0,0,0,0.18)]",
         ],
         input: [
-            "hover:border-[#aa3bff]",
-            "hover:shadow-sm",
-            "data-[style-state=hover]:border-[#aa3bff]",
-            "data-[style-state=hover]:shadow-sm",
+            "hover:[box-shadow:0_4px_12px_rgba(0,0,0,0.16)]",
+            "hover:-translate-y-px",
         ],
     };
 
-    const disabledVariant =
-        componentId === "card" ? "aria-disabled" : "disabled";
+    const disabledStyles = {
+        card: [
+            "aria-disabled:opacity-45",
+            "aria-disabled:cursor-not-allowed",
+            "aria-disabled:grayscale-[0.35]",
+            "aria-disabled:transform-none",
+        ],
+        button: [
+            hasSpecialEffect ? "disabled:opacity-45" : "disabled:opacity-50",
+            "disabled:cursor-not-allowed",
+            "disabled:shadow-none",
+            "disabled:transform-none",
+            ...(hasSpecialEffect
+                ? ["disabled:grayscale-[0.35]"]
+                : []),
+        ],
+        input: [
+            hasSpecialEffect ? "disabled:opacity-45" : "disabled:opacity-50",
+            "disabled:cursor-not-allowed",
+            "disabled:bg-[var(--code-bg)]",
+            ...(hasSpecialEffect
+                ? ["disabled:grayscale-[0.35]", "disabled:transform-none"]
+                : []),
+        ],
+    };
+
+    const errorStyles = {
+        card: [
+            "aria-[invalid=true]:border-[#dc2626]",
+            "aria-[invalid=true]:[outline:1px_solid_rgba(220,38,38,0.25)]",
+            "aria-[invalid=true]:[outline-offset:1px]",
+        ],
+        button: [
+            "aria-[invalid=true]:border-[#dc2626]",
+            "aria-[invalid=true]:[box-shadow:0_0_0_2px_rgba(220,38,38,0.12)]",
+        ],
+        input: [
+            "aria-[invalid=true]:[border:2px_solid_#ef4444]",
+            "aria-[invalid=true]:[outline:2px_solid_rgba(239,68,68,0.24)]",
+            "aria-[invalid=true]:[outline-offset:2px]",
+            "aria-[invalid=true]:[box-shadow:0_0_0_4px_rgba(239,68,68,0.14),0_0_16px_rgba(239,68,68,0.22)]",
+        ],
+    };
+
+    const effectHoverClasses = {
+        button: ["hover:brightness-[1.06]"],
+        input: ["hover:brightness-[1.04]"],
+    };
+
+    const effectErrorClasses = {
+        input: [
+            "aria-[invalid=true]:[outline:2px_solid_rgba(239,68,68,0.32)]",
+            "aria-[invalid=true]:[box-shadow:0_0_0_4px_rgba(239,68,68,0.18),0_0_18px_rgba(239,68,68,0.26)]",
+        ],
+    };
 
     return [
         ...hoverClasses[componentId],
         "focus-visible:[outline:3px_solid_#aa3bff]",
         "focus-visible:outline-offset-[3px]",
-        "data-[style-state=focus]:[outline:3px_solid_#aa3bff]",
-        "data-[style-state=focus]:outline-offset-[3px]",
-        `${disabledVariant}:opacity-45`,
-        `${disabledVariant}:cursor-not-allowed`,
-        "data-[style-state=disabled]:opacity-45",
-        "data-[style-state=disabled]:cursor-not-allowed",
-        "aria-[invalid=true]:border-red-600",
-        "aria-[invalid=true]:outline-1",
-        "data-[style-state=error]:border-red-600",
-        "data-[style-state=error]:outline-1",
+        ...disabledStyles[componentId],
+        ...errorStyles[componentId],
+        ...(hasSpecialEffect
+            ? effectHoverClasses[componentId] ?? []
+            : []),
+        ...(hasSpecialEffect
+            ? effectErrorClasses[componentId] ?? []
+            : []),
     ];
 }
 
@@ -864,7 +808,6 @@ export function generateTailwind(options) {
         componentId,
         content,
         imageSrc,
-        activeStyleState,
         styles,
         designEffect,
         layout,
@@ -920,40 +863,17 @@ export function generateTailwind(options) {
 
     const rootClasses = [
         ...baseClasses[componentId],
-        ...createTailwindStyles(
-            componentId,
-            styles.normal,
-            "",
-            "root",
-        ),
+        ...createTailwindStyles(componentId, styles.normal, "", "root"),
         ...getTailwindEffectClasses(componentId, designEffect),
-        ...generateTailwindStateStyles(
-            componentId,
-            styles,
-            "root",
-        ),
-        ...getTailwindBehaviorClasses(componentId),
+        ...getTailwindBehaviorClasses(componentId, designEffect),
     ].join(" ");
-
-    const isDisabled = activeStyleState === "disabled";
-    const isError = activeStyleState === "error";
 
     if (componentId === "card") {
         const contentClasses = [
             "flex-1",
             "min-w-0",
             ...(styles.normal.padding ? [] : ["p-5"]),
-            ...createTailwindStyles(
-                componentId,
-                styles.normal,
-                "",
-                "content",
-            ),
-            ...generateTailwindStateStyles(
-                componentId,
-                styles,
-                "content",
-            ),
+            ...createTailwindStyles(componentId, styles.normal, "", "content"),
         ].join(" ");
 
         const imageMarkup = imageSrc
@@ -964,14 +884,16 @@ export function generateTailwind(options) {
   return (
     <article
       className=${escapeJsxString(rootClasses)}
-      data-style-state=${escapeJsxString(activeStyleState)}
       tabIndex={0}
-      ${isDisabled ? 'aria-disabled="true"' : ""}
-      ${isError ? 'aria-invalid="true"' : ""}
-    >
+      >
       ${imageMarkup}
       <div className=${escapeJsxString(contentClasses)}>
-        <h3 className="mb-2 text-xl">${`{${escapeJsxString(content.title)}}`}</h3>
+        <h3
+            className="mb-2 text-xl"
+            style={{ color: "var(--component-title-color, var(--component-color, #302d43))" }}
+        >
+            ${`{${escapeJsxString(content.title)}}`}
+        </h3>
         <p className="leading-relaxed">${`{${escapeJsxString(content.description)}}`}</p>
       </div>
     </article>
@@ -985,9 +907,6 @@ export function generateTailwind(options) {
     <button
       type="button"
       className=${escapeJsxString(rootClasses)}
-      data-style-state=${escapeJsxString(activeStyleState)}
-      ${isDisabled ? "disabled" : ""}
-      ${isError ? 'aria-invalid="true"' : ""}
     >
       {${escapeJsxString(content.label)}}
     </button>
@@ -1005,10 +924,7 @@ export function generateTailwind(options) {
         id="stylelab-generated-input"
         type="text"
         className=${escapeJsxString(rootClasses)}
-        data-style-state=${escapeJsxString(activeStyleState)}
         placeholder=${escapeJsxString(content.placeholder)}
-        ${isDisabled ? "disabled" : ""}
-        ${isError ? 'aria-invalid="true"' : ""}
       />
     </div>
   );

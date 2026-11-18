@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import "./Home.css";
 
 function Home() {
   return (
@@ -35,16 +36,19 @@ function Home() {
 
         <div className="features-grid">
           <article>
+            <span className="feature-icon blue-icon">✦</span>
             <h3>Design Components</h3>
-            <p>Customize Card, Button and Input components.</p>
+            <p>Create and customize reusable UI components.</p>
           </article>
 
           <article>
+            <span className="feature-icon purple-icon">◈</span>
             <h3>Explore Effects</h3>
             <p>Experiment with Glassmorphism and Neumorphism.</p>
           </article>
 
           <article>
+            <span className="feature-icon pink-icon">⌘</span>
             <h3>Generate Code</h3>
             <p>Export your designs as JSX, CSS or Tailwind CSS.</p>
           </article>

@@ -110,6 +110,7 @@ export function workspaceReducer(state, action) {
                 !STYLE_STATES.includes(styleState) ||
                 typeof property !== 'string' ||
                 property.trim() === '' ||
+                styleState !== 'normal' ||
                 value === undefined
             ) {
                 return state

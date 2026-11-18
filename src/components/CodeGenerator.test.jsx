@@ -38,15 +38,20 @@ function createComponentData(componentId, updates = {}) {
 function renderCodeGenerator({
   componentId = "button",
   componentData = createComponentData("button"),
-  activeStyleState = "normal",
 } = {}) {
   return render(
-    <CodeGenerator
-      componentId={componentId}
-      componentData={componentData}
-      activeStyleState={activeStyleState}
-    />,
+    <CodeGenerator componentId={componentId} componentData={componentData} />,
   );
+}
+
+async function waitForCodeFormatting() {
+  const codeElement = screen.getByLabelText("Generated code");
+
+  await waitFor(() => {
+    expect(codeElement).toHaveAttribute("aria-busy", "false");
+  });
+
+  return codeElement;
 }
 
 describe("CodeGenerator component", () => {
@@ -61,8 +66,10 @@ describe("CodeGenerator component", () => {
     });
   });
 
-  it("renders format selection and Copy and Export buttons", () => {
+  it("renders format selection and Copy and Export buttons", async () => {
     renderCodeGenerator();
+
+    await waitForCodeFormatting();
 
     expect(screen.getByLabelText("Code format")).toHaveValue("jsx");
 
@@ -79,6 +86,8 @@ describe("CodeGenerator component", () => {
     const user = userEvent.setup();
 
     renderCodeGenerator();
+
+    await waitForCodeFormatting();
 
     const displayedCode = screen.getByLabelText("Generated code").textContent;
 
@@ -101,6 +110,7 @@ describe("CodeGenerator component", () => {
     );
 
     renderCodeGenerator();
+    await waitForCodeFormatting();
 
     await user.click(screen.getByRole("button", { name: "Copy" }));
 
@@ -113,10 +123,12 @@ describe("CodeGenerator component", () => {
     const user = userEvent.setup();
 
     renderCodeGenerator();
+    await waitForCodeFormatting();
 
     const formatSelect = screen.getByLabelText("Code format");
 
     await user.selectOptions(formatSelect, "css");
+    await waitForCodeFormatting();
 
     const displayedCss = screen.getByLabelText("Generated code").textContent;
 
@@ -127,6 +139,7 @@ describe("CodeGenerator component", () => {
     expect(copyCodeToClipboardMock).toHaveBeenCalledWith(displayedCss);
 
     await user.selectOptions(formatSelect, "tailwind");
+    await waitForCodeFormatting();
 
     expect(screen.getByLabelText("Generated code")).toHaveTextContent(
       "inline-flex",
@@ -149,6 +162,7 @@ describe("CodeGenerator component", () => {
     });
 
     await user.selectOptions(screen.getByLabelText("Code format"), "css");
+    await waitForCodeFormatting();
 
     const displayedCode = screen.getByLabelText("Generated code").textContent;
 
@@ -173,6 +187,7 @@ describe("CodeGenerator component", () => {
     });
 
     renderCodeGenerator();
+    await waitForCodeFormatting();
 
     await user.click(screen.getByRole("button", { name: "Export" }));
 
@@ -192,6 +207,7 @@ describe("CodeGenerator component", () => {
       componentId: "button",
       componentData: initialData,
     });
+    await waitForCodeFormatting();
 
     expect(screen.getByLabelText("Generated code")).toHaveTextContent(
       "First label",
@@ -202,12 +218,9 @@ describe("CodeGenerator component", () => {
     });
 
     rerender(
-      <CodeGenerator
-        componentId="button"
-        componentData={updatedData}
-        activeStyleState="normal"
-      />,
+      <CodeGenerator componentId="button" componentData={updatedData} />,
     );
+    await waitForCodeFormatting();
 
     const displayedCode = screen.getByLabelText("Generated code").textContent;
 
@@ -227,6 +240,7 @@ describe("CodeGenerator component", () => {
       componentId: "button",
       componentData: initialData,
     });
+    await waitForCodeFormatting();
 
     await user.click(screen.getByRole("button", { name: "Copy" }));
 
@@ -237,15 +251,15 @@ describe("CodeGenerator component", () => {
     });
 
     rerender(
-      <CodeGenerator
-        componentId="button"
-        componentData={updatedData}
-        activeStyleState="normal"
-      />,
+      <CodeGenerator componentId="button" componentData={updatedData} />,
     );
+    await waitForCodeFormatting();
 
     await waitFor(() => {
-      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+      expect(screen.getByRole("status")).toBeEmptyDOMElement();
+      expect(
+        screen.queryByText("Code copied successfully!"),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -259,6 +273,7 @@ describe("CodeGenerator component", () => {
       componentId: "button",
       componentData,
     });
+    await waitForCodeFormatting();
 
     await user.click(screen.getByRole("button", { name: "Copy" }));
 

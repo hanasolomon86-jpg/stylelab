@@ -11,6 +11,17 @@ function isObject(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function normalizeStyles(styles) {
+    return Object.fromEntries(
+        STYLE_STATES.map((styleState) => [
+            styleState,
+            styleState === "normal"
+                ? { ...styles.normal }
+                : {},
+        ]),
+    );
+}
+
 function isValidWorkspace(workspace) {
     if (
         !isObject(workspace) ||
@@ -86,6 +97,7 @@ export function loadWorkspace(storage) {
                         componentId,
                         {
                             ...component,
+                            styles: normalizeStyles(component.styles),
                             ...(componentId === "card"
                                 ? { layout: component.layout ?? "top" }
                                 : {}),
@@ -112,7 +124,25 @@ export function saveWorkspace(workspace, storage) {
             return false;
         }
 
-        storageTarget.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(workspace));
+        const normalizedWorkspace = {
+            ...workspace,
+            components: Object.fromEntries(
+                COMPONENT_IDS.map((componentId) => [
+                    componentId,
+                    {
+                        ...workspace.components[componentId],
+                        styles: normalizeStyles(
+                            workspace.components[componentId].styles,
+                        ),
+                    },
+                ]),
+            ),
+        };
+
+        storageTarget.setItem(
+            WORKSPACE_STORAGE_KEY,
+            JSON.stringify(normalizedWorkspace),
+        );
 
         return true;
     } catch {

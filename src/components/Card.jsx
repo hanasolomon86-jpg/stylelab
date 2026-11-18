@@ -20,7 +20,7 @@ function Card({
   const hasImage = Boolean(imageId);
   const shouldShowImage = hasImage || showImagePlaceholder;
 
-  const { padding, backgroundColor, color, ...cardStyles } = styles;
+  const { padding, backgroundColor, color, titleColor, ...cardStyles } = styles;
 
   const cardStyle =
     designEffect === "none"
@@ -28,9 +28,11 @@ function Card({
           ...cardStyles,
           backgroundColor,
           color,
+          padding: padding ?? "20px",
         }
       : {
           ...cardStyles,
+          padding: padding ?? "20px",
           "--component-background": backgroundColor ?? "#ffffff",
           "--component-color": color ?? "var(--text)",
         };
@@ -53,8 +55,14 @@ function Card({
         </div>
       )}
 
-      <div className="card__content" style={padding ? { padding } : undefined}>
-        <h3 className="card__title">{title}</h3>
+      <div className="card__content">
+        <h3
+          className="card__title"
+          style={titleColor ? { color: titleColor } : undefined}
+        >
+          {title}
+        </h3>
+
         <p className="card__description">{description}</p>
       </div>
     </article>
