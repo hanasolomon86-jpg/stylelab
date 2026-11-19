@@ -16,6 +16,7 @@ function WorkspaceConsumer() {
     updateComponentContent,
     updateComponentStyle,
     updateComponentLayout,
+    updateComponentDesignEffect,
   } = useWorkspace();
 
   return (
@@ -36,6 +37,16 @@ function WorkspaceConsumer() {
       <p data-testid="hover-background">
         {workspace.components.card.styles.hover.backgroundColor ?? ""}
       </p>
+
+      <p data-testid="card-design-effect">
+        {workspace.components.card.designEffect}
+      </p>
+
+      <button
+        onClick={() => updateComponentDesignEffect("card", "glassmorphism")}
+      >
+        Update card design effect
+      </button>
 
       <button
         onClick={() => updateComponentContent("card", "title", "Saved title")}
@@ -65,6 +76,14 @@ function WorkspaceConsumer() {
       <button onClick={() => selectComponent("button")}>Select button</button>
 
       <button onClick={() => selectStyleState("hover")}>Select hover</button>
+
+      <button onClick={() => selectComponent("invalid")}>
+        Select invalid component
+      </button>
+
+      <button onClick={() => selectStyleState("invalid")}>
+        Select invalid style
+      </button>
     </div>
   );
 }
@@ -194,5 +213,45 @@ describe("WorkspaceContext", () => {
 
     expect(savedWorkspace.components.card.styles.hover).toEqual({});
     expect(savedWorkspace.components.card.styles.normal).toEqual({});
+  });
+
+  it("ignores invalid component and style selections", async () => {
+    const user = userEvent.setup();
+
+    renderWorkspace();
+
+    await user.click(
+      screen.getByRole("button", { name: "Select invalid component" }),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Select invalid style" }),
+    );
+
+    expect(screen.getByTestId("selected-component")).toHaveTextContent("card");
+
+    expect(screen.getByTestId("active-style-state")).toHaveTextContent(
+      "normal",
+    );
+  });
+
+  it("updates the Card design effect and saves it to LocalStorage", async () => {
+    const user = userEvent.setup();
+
+    renderWorkspace();
+
+    await user.click(
+      screen.getByRole("button", { name: "Update card design effect" }),
+    );
+
+    expect(screen.getByTestId("card-design-effect")).toHaveTextContent(
+      "glassmorphism",
+    );
+
+    const savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
+    );
+
+    expect(savedWorkspace.components.card.designEffect).toBe("glassmorphism");
   });
 });
