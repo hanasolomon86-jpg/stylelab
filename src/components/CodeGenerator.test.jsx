@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 
 import userEvent from "@testing-library/user-event";
 
 import { createInitialWorkspace } from "../reducers/workspaceReducer";
 
 import CodeGenerator from "./CodeGenerator";
+
+import * as formatCodeModule from "../utils/formatGeneratedCode";
 
 const { copyCodeToClipboardMock, exportCodeMock } = vi.hoisted(() => ({
   copyCodeToClipboardMock: vi.fn(),
@@ -280,5 +282,132 @@ describe("CodeGenerator component", () => {
     await user.click(screen.getByRole("button", { name: "Export" }));
 
     expect(componentData).toEqual(originalData);
+  });
+
+  it("falls back to generated code when formatting fails", async () => {
+    const formattingError = new Error("Formatting failed");
+
+    const formatSpy = vi
+      .spyOn(formatCodeModule, "formatGeneratedCode")
+      .mockRejectedValueOnce(formattingError);
+
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    renderCodeGenerator();
+
+    const codeElement = await waitForCodeFormatting();
+
+    expect(codeElement).toHaveTextContent("GeneratedButton");
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Unable to format generated code:",
+      formattingError,
+    );
+
+    formatSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("ignores stale formatting results after component data changes", async () => {
+    const initialData = createComponentData("button", {
+      content: { label: "First label" },
+    });
+
+    const updatedData = createComponentData("button", {
+      content: { label: "Latest label" },
+    });
+
+    let resolveStaleFormatting;
+
+    const formatSpy = vi
+      .spyOn(formatCodeModule, "formatGeneratedCode")
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveStaleFormatting = resolve;
+          }),
+      )
+      .mockResolvedValueOnce("formatted latest code");
+
+    const { rerender } = renderCodeGenerator({
+      componentId: "button",
+      componentData: initialData,
+    });
+
+    expect(resolveStaleFormatting).toBeDefined();
+
+    rerender(
+      <CodeGenerator componentId="button" componentData={updatedData} />,
+    );
+
+    const codeElement = await waitForCodeFormatting();
+
+    await act(async () => {
+      resolveStaleFormatting("stale formatted code");
+    });
+
+    expect(codeElement).toHaveAttribute("aria-busy", "false");
+    expect(codeElement).toHaveTextContent("formatted latest code");
+    expect(codeElement).not.toHaveTextContent("stale formatted code");
+
+    formatSpy.mockRestore();
+  });
+
+  it("ignores stale formatting errors after component data changes", async () => {
+    const initialData = createComponentData("button", {
+      content: { label: "First label" },
+    });
+
+    const updatedData = createComponentData("button", {
+      content: { label: "Latest label" },
+    });
+
+    let rejectStaleFormatting;
+
+    const formatSpy = vi
+      .spyOn(formatCodeModule, "formatGeneratedCode")
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve, reject) => {
+            rejectStaleFormatting = reject;
+          }),
+      )
+      .mockResolvedValueOnce("formatted latest code");
+
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    const { rerender } = renderCodeGenerator({
+      componentId: "button",
+      componentData: initialData,
+    });
+
+    expect(rejectStaleFormatting).toBeDefined();
+
+    rerender(
+      <CodeGenerator componentId="button" componentData={updatedData} />,
+    );
+
+    const codeElement = await waitForCodeFormatting();
+
+    const staleError = new Error("Stale formatting failed");
+
+    await act(async () => {
+      rejectStaleFormatting(staleError);
+    });
+
+    expect(codeElement).toHaveAttribute("aria-busy", "false");
+    expect(codeElement).toHaveTextContent("formatted latest code");
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Unable to format generated code:",
+      staleError,
+    );
+
+    formatSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 });

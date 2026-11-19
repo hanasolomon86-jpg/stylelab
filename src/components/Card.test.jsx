@@ -114,4 +114,80 @@ describe("Card component", () => {
 
     expect(screen.queryByText("Image preview")).not.toBeInTheDocument();
   });
+  it("applies custom styles when a design effect is active", () => {
+    render(
+      <Card
+        title="Product Title"
+        description="Product description"
+        designEffect="glassmorphism"
+        styles={{
+          backgroundColor: "#123456",
+          color: "#ffffff",
+          padding: "24px",
+          borderRadius: "16px",
+        }}
+      />,
+    );
+
+    const card = screen.getByRole("article");
+
+    expect(card).toHaveClass("design-effect--glassmorphism");
+    expect(card.style.getPropertyValue("--component-background")).toBe(
+      "#123456",
+    );
+    expect(card.style.getPropertyValue("--component-color")).toBe("#ffffff");
+    expect(card).toHaveStyle({
+      padding: "24px",
+      borderRadius: "16px",
+    });
+  });
+
+  it("uses default values when styles are missing with an active design effect", () => {
+    render(
+      <Card
+        title="Product Title"
+        description="Product description"
+        designEffect="neumorphism"
+      />,
+    );
+
+    const card = screen.getByRole("article");
+
+    expect(card).toHaveClass("design-effect--neumorphism");
+    expect(card.style.getPropertyValue("--component-background")).toBe(
+      "#ffffff",
+    );
+    expect(card.style.getPropertyValue("--component-color")).toBe(
+      "var(--text)",
+    );
+    expect(card).toHaveStyle({
+      padding: "20px",
+    });
+  });
+
+  it("uses a default accessible label when the title is missing", () => {
+    render(<Card description="Product description" showImagePlaceholder />);
+
+    expect(
+      screen.getByRole("img", {
+        name: "Card image placeholder",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("applies a custom title color", () => {
+    render(
+      <Card
+        title="Product Title"
+        description="Product description"
+        styles={{
+          titleColor: "#dc2626",
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Product Title" })).toHaveStyle({
+      color: "#dc2626",
+    });
+  });
 });

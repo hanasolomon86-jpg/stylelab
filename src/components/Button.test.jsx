@@ -61,4 +61,55 @@ describe("Button component", () => {
 
     expect(screen.getByRole("button")).toBeEnabled();
   });
+
+  it("uses CSS variables for colors when a design effect is active", () => {
+    render(
+      <Button
+        label="Styled Button"
+        designEffect="glassmorphism"
+        styles={{
+          backgroundColor: "#123456",
+          color: "#ffffff",
+          borderRadius: "12px",
+          padding: "16px",
+        }}
+      />,
+    );
+
+    const button = screen.getByRole("button", {
+      name: "Styled Button",
+    });
+
+    expect(button).toHaveClass("design-effect--glassmorphism");
+    expect(button.style.getPropertyValue("--component-background")).toBe(
+      "#123456",
+    );
+    expect(button.style.getPropertyValue("--component-color")).toBe("#ffffff");
+    expect(button).toHaveStyle({
+      borderRadius: "12px",
+      padding: "16px",
+    });
+  });
+
+  it("uses default CSS variable values when colors are missing with an active design effect", () => {
+    render(
+      <Button
+        label="Styled Button"
+        designEffect="glassmorphism"
+        styles={{
+          borderRadius: "12px",
+          padding: "16px",
+        }}
+      />,
+    );
+
+    const button = screen.getByRole("button", {
+      name: "Styled Button",
+    });
+
+    expect(button.style.getPropertyValue("--component-background")).toBe(
+      "var(--accent)",
+    );
+    expect(button.style.getPropertyValue("--component-color")).toBe("#ffffff");
+  });
 });

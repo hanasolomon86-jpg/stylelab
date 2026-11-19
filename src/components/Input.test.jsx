@@ -96,4 +96,55 @@ describe("Input component", () => {
 
     expect(screen.getByLabelText("Email")).toHaveAttribute("readonly");
   });
+
+  it("uses CSS variables for colors when a design effect is active", () => {
+    render(
+      <Input
+        label="Email"
+        placeholder="Enter email"
+        designEffect="glassmorphism"
+        styles={{
+          backgroundColor: "#123456",
+          color: "#ffffff",
+          borderRadius: "12px",
+          padding: "16px",
+        }}
+      />,
+    );
+
+    const input = screen.getByLabelText("Email");
+
+    expect(input).toHaveClass("design-effect--glassmorphism");
+    expect(input.style.getPropertyValue("--component-background")).toBe(
+      "#123456",
+    );
+    expect(input.style.getPropertyValue("--component-color")).toBe("#ffffff");
+    expect(input).toHaveStyle({
+      borderRadius: "12px",
+      padding: "16px",
+    });
+  });
+
+  it("uses default CSS variable values when colors are missing with an active design effect", () => {
+    render(
+      <Input
+        label="Email"
+        placeholder="Enter email"
+        designEffect="glassmorphism"
+        styles={{
+          borderRadius: "12px",
+          padding: "16px",
+        }}
+      />,
+    );
+
+    const input = screen.getByLabelText("Email");
+
+    expect(input.style.getPropertyValue("--component-background")).toBe(
+      "var(--bg)",
+    );
+    expect(input.style.getPropertyValue("--component-color")).toBe(
+      "var(--text-h)",
+    );
+  });
 });
