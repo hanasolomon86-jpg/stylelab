@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState, useSyncExternalStore } from "react";
 
 import { WorkspaceContext } from "./workspaceContext.js";
 
@@ -11,6 +11,12 @@ import {
 
 import { loadWorkspace, saveWorkspace } from "../utils/workspaceStorage";
 
+import {
+  getStorageErrorSnapshot,
+  subscribeToStorageStatus,
+  publishStorageError,
+} from "../utils/storageStatus";
+
 export function WorkspaceProvider({ children }) {
   const [workspace, dispatch] = useReducer(
     workspaceReducer,
@@ -20,9 +26,15 @@ export function WorkspaceProvider({ children }) {
 
   const [selectedComponent, setSelectedComponent] = useState("card");
   const [activeStyleState, setActiveStyleState] = useState("normal");
+  const hasStorageError = useSyncExternalStore(
+    subscribeToStorageStatus,
+    getStorageErrorSnapshot,
+    getStorageErrorSnapshot,
+  );
 
   useEffect(() => {
-    saveWorkspace(workspace);
+    const saved = saveWorkspace(workspace);
+    publishStorageError(!saved);
   }, [workspace]);
 
   function selectComponent(componentId) {
@@ -84,6 +96,7 @@ export function WorkspaceProvider({ children }) {
     workspace,
     selectedComponent,
     activeStyleState,
+    hasStorageError,
     selectComponent,
     selectStyleState,
     updateComponentContent,

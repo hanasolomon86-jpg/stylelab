@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -11,6 +11,7 @@ function WorkspaceConsumer() {
     workspace,
     selectedComponent,
     activeStyleState,
+    hasStorageError,
     selectComponent,
     selectStyleState,
     updateComponentContent,
@@ -41,6 +42,8 @@ function WorkspaceConsumer() {
       <p data-testid="card-design-effect">
         {workspace.components.card.designEffect}
       </p>
+
+      <p data-testid="storage-error">{String(hasStorageError)}</p>
 
       <button
         onClick={() => updateComponentDesignEffect("card", "glassmorphism")}
@@ -253,5 +256,25 @@ describe("WorkspaceContext", () => {
     );
 
     expect(savedWorkspace.components.card.designEffect).toBe("glassmorphism");
+  });
+
+  it("reports storage errors and clears them after a successful save", async () => {
+    const user = userEvent.setup();
+
+    const setItemSpy = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new Error("Storage unavailable");
+      });
+
+    renderWorkspace();
+
+    expect(screen.getByTestId("storage-error")).toHaveTextContent("true");
+
+    setItemSpy.mockRestore();
+
+    await user.click(screen.getByRole("button", { name: "Update card title" }));
+
+    expect(screen.getByTestId("storage-error")).toHaveTextContent("false");
   });
 });
