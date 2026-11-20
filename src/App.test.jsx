@@ -1,5 +1,5 @@
-import { beforeEach, describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import App from "./App";
@@ -18,6 +18,9 @@ function renderWithRouter(initialRoute = "/") {
 describe("StyleLab routing", () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
   it("renders the Home page at the root route", () => {
     renderWithRouter("/");
@@ -97,5 +100,38 @@ describe("StyleLab routing", () => {
         name: "Design. Preview. Generate.",
       }),
     ).toBeInTheDocument();
+  });
+
+  it("displays an accessible error when workspace storage is unavailable and clears it after recovery", async () => {
+    const user = userEvent.setup();
+
+    const storageSpy = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new Error("Storage unavailable");
+      });
+
+    renderWithRouter("/studio");
+
+    const errorMessage =
+      "Unable to save your changes. Your browser storage may be unavailable.";
+
+    const storageAlert = await screen.findByText(errorMessage);
+
+    expect(storageAlert).toHaveAttribute("role", "alert");
+
+    // Restore storage and make a workspace change.
+    storageSpy.mockRestore();
+
+    await user.click(screen.getByRole("button", { name: "Content" }));
+
+    const titleInput = screen.getByLabelText("Card title");
+
+    await user.clear(titleInput);
+    await user.type(titleInput, "Updated after storage recovery");
+
+    await waitFor(() => {
+      expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+    });
   });
 });
