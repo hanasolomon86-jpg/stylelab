@@ -253,6 +253,68 @@ describe('workspaceStorage', () => {
         });
     });
 
+    it('filters invalid style properties and values when loading', () => {
+        const workspace = createInitialWorkspace();
+
+        workspace.components.card.styles.normal = {
+            backgroundColor: '#123456',
+            borderRadius: '24px',
+            boxShadow: '0 0 10px red',
+            padding: '49px',
+        };
+
+        workspace.components.button.styles.normal = {
+            color: '#ffffff',
+            titleColor: '#123456',
+        };
+
+        localStorage.setItem(
+            WORKSPACE_STORAGE_KEY,
+            JSON.stringify(workspace),
+        );
+
+        const loadedWorkspace = loadWorkspace();
+
+        expect(loadedWorkspace.components.card.styles.normal).toEqual({
+            backgroundColor: '#123456',
+            borderRadius: '24px',
+        });
+
+        expect(loadedWorkspace.components.button.styles.normal).toEqual({
+            color: '#ffffff',
+        });
+    });
+
+    it('filters invalid style properties and values when saving', () => {
+        const workspace = createInitialWorkspace();
+
+        workspace.components.card.styles.normal = {
+            color: '#abcdef',
+            padding: '12px',
+            position: 'fixed',
+            backgroundColor: 'red; display: none',
+        };
+
+        const saved = saveWorkspace(workspace);
+
+        expect(saved).toBe(true);
+
+        const savedWorkspace = JSON.parse(
+            localStorage.getItem(WORKSPACE_STORAGE_KEY),
+        );
+
+        expect(savedWorkspace.components.card.styles.normal).toEqual({
+            color: '#abcdef',
+            padding: '12px',
+        });
+
+        // Saving must not mutate the original workspace.
+        expect(workspace.components.card.styles.normal).toHaveProperty(
+            'position',
+            'fixed',
+        );
+    });
+
     it('handles storage errors when saving', () => {
         const unavailableStorage = {
             setItem() {

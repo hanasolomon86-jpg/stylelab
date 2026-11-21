@@ -15,6 +15,61 @@ export const DESIGN_EFFECTS = [
     "neumorphism",
 ];
 
+export const STYLE_PROPERTIES = {
+    card: [
+        "backgroundColor",
+        "color",
+        "titleColor",
+        "borderRadius",
+        "padding",
+    ],
+    button: [
+        "backgroundColor",
+        "color",
+        "borderRadius",
+        "padding",
+    ],
+    input: [
+        "backgroundColor",
+        "color",
+        "borderRadius",
+        "padding",
+    ],
+};
+
+const COLOR_STYLE_PROPERTIES = [
+    "backgroundColor",
+    "color",
+    "titleColor",
+];
+
+const SPACING_STYLE_PROPERTIES = [
+    "borderRadius",
+    "padding",
+];
+
+export function isValidStyleProperty(componentId, property, value) {
+    if (!STYLE_PROPERTIES[componentId]?.includes(property)) {
+        return false;
+    }
+
+    if (COLOR_STYLE_PROPERTIES.includes(property)) {
+        return (
+            typeof value === "string" &&
+            /^#[0-9a-f]{6}$/i.test(value)
+        );
+    }
+
+    if (SPACING_STYLE_PROPERTIES.includes(property)) {
+        return (
+            typeof value === "string" &&
+            /^(?:[0-9]|[1-3][0-9]|4[0-8])px$/.test(value)
+        );
+    }
+
+    return false;
+}
+
 export const WORKSPACE_ACTIONS = {
     UPDATE_COMPONENT_CONTENT: 'UPDATE_COMPONENT_CONTENT',
     UPDATE_COMPONENT_STYLE: 'UPDATE_COMPONENT_STYLE',
@@ -108,10 +163,8 @@ export function workspaceReducer(state, action) {
             if (
                 !COMPONENT_IDS.includes(componentId) ||
                 !STYLE_STATES.includes(styleState) ||
-                typeof property !== 'string' ||
-                property.trim() === '' ||
-                styleState !== 'normal' ||
-                value === undefined
+                !isValidStyleProperty(componentId, property, value) ||
+                styleState !== 'normal'
             ) {
                 return state
             }
