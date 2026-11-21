@@ -21,7 +21,7 @@
   --studio-muted: #94a3b8;
   --studio-accent: #8b5cf6;
   --studio-input-bg: #111726;
-  --studio-input-border: rgba(255, 255, 255, 0.1);
+  --studio-input-border: #64748b;
 
   display: flex;
   flex-direction: column;
