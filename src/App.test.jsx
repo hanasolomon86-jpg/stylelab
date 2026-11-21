@@ -44,7 +44,7 @@ describe("StyleLab routing", () => {
     );
 
     expect(
-      screen.getByRole("heading", {
+      await screen.findByRole("heading", {
         name: "Studio",
       }),
     ).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe("StyleLab routing", () => {
     renderWithRouter("/studio");
 
     expect(
-      screen.getByRole("heading", {
+      await screen.findByRole("heading", {
         name: "Studio",
       }),
     ).toBeInTheDocument();

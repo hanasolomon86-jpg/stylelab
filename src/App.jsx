@@ -1,12 +1,14 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router";
 
 import { useWorkspace } from "./hooks/useWorkspace";
 
 import Home from "./pages/Home.jsx";
-import Studio from "./pages/Studio.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 import "./App.css";
+
+const Studio = lazy(() => import("./pages/Studio.jsx"));
 
 function App() {
   const { hasStorageError } = useWorkspace();
@@ -19,11 +21,13 @@ function App() {
         </div>
       )}
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/studio" element={<Studio />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Suspense fallback={<div role="status">Loading Studio...</div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/studio" element={<Studio />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }

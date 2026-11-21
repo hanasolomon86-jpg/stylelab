@@ -1,23 +1,25 @@
-import * as prettier from "prettier/standalone";
-
-import * as babelPlugin from "prettier/plugins/babel";
-import * as estreePlugin from "prettier/plugins/estree";
-import * as postcssPlugin from "prettier/plugins/postcss";
-
 const FORMAT_CONFIG = {
     jsx: {
         parser: "babel",
-        plugins: [babelPlugin, estreePlugin],
     },
     css: {
         parser: "css",
-        plugins: [postcssPlugin],
     },
     tailwind: {
         parser: "babel",
-        plugins: [babelPlugin, estreePlugin],
     },
 };
+
+async function loadPlugins(format) {
+    if (format === "css") {
+        return [await import("prettier/plugins/postcss")];
+    }
+
+    return Promise.all([
+        import("prettier/plugins/babel"),
+        import("prettier/plugins/estree"),
+    ]);
+}
 
 export async function formatGeneratedCode(code, format) {
     const config = FORMAT_CONFIG[format];
@@ -26,8 +28,14 @@ export async function formatGeneratedCode(code, format) {
         throw new Error(`Unsupported code format: ${format}`);
     }
 
+    const [prettier, plugins] = await Promise.all([
+        import("prettier/standalone"),
+        loadPlugins(format),
+    ]);
+
     return prettier.format(code, {
         ...config,
+        plugins,
         printWidth: 80,
         tabWidth: 2,
         useTabs: false,
