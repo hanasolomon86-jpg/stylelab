@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Copy, Download } from "lucide-react";
 
-import Prism from "prismjs";
-
-import "prismjs/components/prism-markup";
-import "prismjs/components/prism-javascript";
-import "prismjs/components/prism-jsx";
-import "prismjs/components/prism-css";
-
-import "prismjs/plugins/line-numbers/prism-line-numbers";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 
 import {
@@ -21,6 +13,32 @@ import { copyCodeToClipboard, exportCode } from "../utils/codeExport";
 import { formatGeneratedCode } from "../utils/formatGeneratedCode";
 
 import "./CodeGenerator.css";
+
+let prismPromise;
+
+function loadPrism() {
+  if (!prismPromise) {
+    prismPromise = (async () => {
+      const prismModule = await import("prismjs");
+      const Prism = prismModule.default;
+
+      // Load language definitions in dependency order.
+      await import("prismjs/components/prism-markup");
+      await import("prismjs/components/prism-javascript");
+      await import("prismjs/components/prism-jsx");
+      await import("prismjs/components/prism-css");
+
+      await import("prismjs/plugins/line-numbers/prism-line-numbers");
+
+      return Prism;
+    })().catch((error) => {
+      prismPromise = null;
+      throw error;
+    });
+  }
+
+  return prismPromise;
+}
 
 const FORMAT_OPTIONS = [
   { value: "jsx", label: "JSX" },
@@ -196,9 +214,27 @@ function CodeGenerator({ componentId, componentData }) {
   }, [generatedCode, format]);
 
   useEffect(() => {
-    if (codeRef.current) {
-      Prism.highlightElement(codeRef.current);
+    let isCurrent = true;
+
+    async function highlightCode() {
+      try {
+        const Prism = await loadPrism();
+
+        if (isCurrent && codeRef.current) {
+          Prism.highlightElement(codeRef.current);
+        }
+      } catch (error) {
+        if (isCurrent) {
+          console.error("Unable to highlight generated code:", error);
+        }
+      }
     }
+
+    highlightCode();
+
+    return () => {
+      isCurrent = false;
+    };
   }, [displayedCode, language]);
 
   return (
