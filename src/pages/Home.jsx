@@ -36,13 +36,17 @@ function Home() {
 
         <div className="features-grid">
           <article>
-            <span className="feature-icon blue-icon">✦</span>
+            <span className="feature-icon blue-icon" aria-hidden="true">
+              ✦
+            </span>
             <h3>Design Components</h3>
             <p>Create and customize reusable UI components.</p>
           </article>
 
           <article>
-            <span className="feature-icon purple-icon">◈</span>
+            <span className="feature-icon purple-icon" aria-hidden="true">
+              ◈
+            </span>
             <h3>Explore Effects</h3>
             <p>Experiment with Glassmorphism and Neumorphism.</p>
           </article>
