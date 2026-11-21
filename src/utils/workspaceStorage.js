@@ -3,6 +3,7 @@ import {
     STYLE_STATES,
     DESIGN_EFFECTS,
     createInitialWorkspace,
+    isValidStyleProperty,
 } from "../reducers/workspaceReducer";
 
 export const WORKSPACE_STORAGE_KEY = "stylelab-workspace";
@@ -11,12 +12,18 @@ function isObject(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function normalizeStyles(styles) {
+function normalizeStyles(styles, componentId) {
+    const validNormalStyles = Object.fromEntries(
+        Object.entries(styles.normal).filter(([property, value]) =>
+            isValidStyleProperty(componentId, property, value),
+        ),
+    );
+
     return Object.fromEntries(
         STYLE_STATES.map((styleState) => [
             styleState,
             styleState === "normal"
-                ? { ...styles.normal }
+                ? validNormalStyles
                 : {},
         ]),
     );
@@ -97,7 +104,7 @@ export function loadWorkspace(storage) {
                         componentId,
                         {
                             ...component,
-                            styles: normalizeStyles(component.styles),
+                            styles: normalizeStyles(component.styles, componentId),
                             ...(componentId === "card"
                                 ? { layout: component.layout ?? "top" }
                                 : {}),
@@ -133,6 +140,7 @@ export function saveWorkspace(workspace, storage) {
                         ...workspace.components[componentId],
                         styles: normalizeStyles(
                             workspace.components[componentId].styles,
+                            componentId,
                         ),
                     },
                 ]),

@@ -187,6 +187,88 @@ describe('workspaceReducer', () => {
         }
     });
 
+    it.each([
+        {
+            componentId: "card",
+            property: "titleColor",
+            value: "#123456",
+        },
+        {
+            componentId: "button",
+            property: "borderRadius",
+            value: "48px",
+        },
+        {
+            componentId: "input",
+            property: "padding",
+            value: "0px",
+        },
+    ])(
+        "accepts valid style values for $componentId",
+        ({ componentId, property, value }) => {
+            const initialState = createInitialWorkspace();
+
+            const newState = workspaceReducer(initialState, {
+                type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_STYLE,
+                payload: {
+                    componentId,
+                    styleState: "normal",
+                    property,
+                    value,
+                },
+            });
+
+            expect(
+                newState.components[componentId].styles.normal[property],
+            ).toBe(value);
+        },
+    );
+
+    it.each([
+        {
+            componentId: "card",
+            property: "boxShadow",
+            value: "none",
+        },
+        {
+            componentId: "button",
+            property: "titleColor",
+            value: "#123456",
+        },
+        {
+            componentId: "card",
+            property: "backgroundColor",
+            value: "red; display: none",
+        },
+        {
+            componentId: "card",
+            property: "padding",
+            value: "49px",
+        },
+        {
+            componentId: "input",
+            property: "borderRadius",
+            value: "12.5px",
+        },
+    ])(
+        "rejects invalid style values for $componentId",
+        ({ componentId, property, value }) => {
+            const initialState = createInitialWorkspace();
+
+            const newState = workspaceReducer(initialState, {
+                type: WORKSPACE_ACTIONS.UPDATE_COMPONENT_STYLE,
+                payload: {
+                    componentId,
+                    styleState: "normal",
+                    property,
+                    value,
+                },
+            });
+
+            expect(newState).toBe(initialState);
+        },
+    );
+
     it('ignores unknown actions', () => {
         const initialState = createInitialWorkspace()
 
