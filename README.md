@@ -1,67 +1,235 @@
 # StyleLab
 
-**Design. Preview. Generate.**
+_Design. Preview. Generate._
 
-StyleLab is a visual UI component design studio built with React. It allows users to customize UI components, preview their appearance and generate reusable React code.
+StyleLab is a visual UI component design studio built with React. It allows developers and UI designers to customize reusable UI components, preview their appearance in real time, and generate code ready to use in their projects.
 
-## Project Status
+## Overview
 
-The project is currently under development.
+Creating reusable UI components often requires writing and adjusting CSS manually, switching between code and browser previews, and repeating styling changes across different components.
 
-## Planned Features
+StyleLab provides a visual workspace that brings component customization, live preview, and code generation into one place.
 
-- Visual customization of Card, Button and Input components.
-- Glassmorphism and Neumorphism design effects.
-- Independent customization of component states.
-- Live component preview.
-- Desktop, Tablet and Mobile preview modes.
-- Preset design templates.
-- Automatic workspace saving using LocalStorage.
-- Code generation in JSX, CSS and Tailwind CSS.
-- Reusable React components with Props.
+The application is designed to make component styling more accessible and efficient without requiring users to manually write CSS for every design change.
 
+## Features
+
+### Component Customization
+
+- **Card** ׳’ג‚¬ג€ Customize title, description, image, and image layout.
+- **Button** ׳’ג‚¬ג€ Customize button text and appearance.
+- **Input** ׳’ג‚¬ג€ Customize label, placeholder, and appearance.
+
+### Design Customization
+
+- Customize background color and text color.
+- Adjust border radius and padding.
+- Apply Glassmorphism and Neumorphism effects.
+- Preview interaction states: Normal, Hover, Focus, Disabled, and Error.
+- Interaction states inherit the base styles defined in Normal.
+
+### Image Gallery
+
+- Choose from six built-in images.
+- Preview the selected image in the Card component.
+- Switch between top and left image layouts.
+
+### Live Preview
+
+- Preview component changes immediately.
+- Switch between dark and light preview backgrounds.
+- View the selected component with its content, styling, layout, and design effects.
+
+### Code Generator
+
+Generate reusable component code in three formats:
+
+- **JSX** ׳’ג‚¬ג€ React component with a corresponding CSS file.
+- **CSS** ׳’ג‚¬ג€ Standalone CSS styles.
+- **Tailwind CSS** ׳’ג‚¬ג€ React component using Tailwind utility classes.
+
+Additional capabilities:
+
+- Automatic code formatting using Prettier.
+- Syntax highlighting using Prism.js.
+- Copy generated code to the clipboard.
+- Export generated code as a downloadable file.
+
+### Workspace Persistence
+
+- Automatically save workspace changes using browser LocalStorage.
+- Restore saved workspace data when the application is reopened.
+- Validate stored data before using it.
+- Handle invalid or unavailable browser storage gracefully.
+
+### Responsive Design and Accessibility
+
+- Responsive layouts for desktop, tablet, and mobile screens.
+- Keyboard navigation across the main application interfaces.
+- Visible focus indicators.
+- Accessible labels and semantic HTML.
+- Accessible feedback messages for important actions.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="StyleLab Home" width="48%" />
+  <img src="docs/screenshots/studio.png" alt="StyleLab Studio" width="48%" />
+</p>
+
+<details>
+<summary>More Screenshots</summary>
+
+<p align="center">
+  <img src="docs/screenshots/controls.png" alt="Component Controls" width="48%" />
+  <img src="docs/screenshots/card-gallery.png" alt="Card with Gallery Image" width="48%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/button.png" alt="Button Customization" width="48%" />
+  <img src="docs/screenshots/input.png" alt="Input Customization" width="48%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/code-generator.png" alt="Code Generator" width="48%" />
+</p>
+
+</details>
 ## Technology Stack
 
-- React
-- JavaScript
-- Vite
-- React Router
-- CSS
-- Tailwind CSS 4
-- Lucide React
-- Vitest
-- React Testing Library
-- npm
+| Technology            | Purpose                                 |
+| --------------------- | --------------------------------------- |
+| React 19              | Component-based UI development          |
+| JavaScript            | Application logic                       |
+| Vite 8                | Development server and production build |
+| React Router 7        | Client-side navigation                  |
+| Tailwind CSS 4        | Utility-first styling                   |
+| CSS                   | Component styling and design effects    |
+| Lucide React          | Interface icons                         |
+| Prettier 3            | Generated code formatting               |
+| Prism.js              | Syntax highlighting                     |
+| Vitest 5              | Unit and component testing              |
+| React Testing Library | UI testing                              |
+| ESLint 10             | Code quality and linting                |
+| npm                   | Dependency management                   |
+
+## Project Structure
+
+```text
+stylelab/
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ public/
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ images/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ gallery/
+׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ favicon.svg
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ docs/
+׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ screenshots/
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ home.png
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ studio.png
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ controls.png
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ card-gallery.png
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ button.png
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ input.png
+׳’ג€ג€       ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ code-generator.png
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ src/
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ components/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ Button.jsx
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ Card.jsx
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ CodeGenerator.jsx
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ ImageGallery.jsx
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ Input.jsx
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ context/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ WorkspaceContext.jsx
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ data/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ imageGallery.js
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ hooks/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ useWorkspace.js
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ pages/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ Home.jsx
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ Studio.jsx
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ NotFound.jsx
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ reducers/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ workspaceReducer.js
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ styles/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ designEffects.css
+׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ test/
+׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ setup.js
+׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ utils/
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ codeExport.js
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ codeGenerator.js
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ formatGeneratedCode.js
+׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ logger.js
+׳’ג€ג€       ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ workspaceStorage.js
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ .github/
+׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ workflows/
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ .gitignore
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ eslint.config.js
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ index.html
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ package.json
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ package-lock.json
+׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ vite.config.js
+׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ README.md
+```
+
+### Architecture Overview
+
+- **Components** ׳’ג‚¬ג€ Reusable UI components and the Code Generator.
+- **Pages** ׳’ג‚¬ג€ Home, Studio, and Not Found views.
+- **Context** ׳’ג‚¬ג€ Shared workspace state.
+- **Hooks** ׳’ג‚¬ג€ Reusable workspace logic.
+- **Reducers** ׳’ג‚¬ג€ Workspace state updates and validation.
+- **Data** ׳’ג‚¬ג€ Built-in image gallery definitions.
+- **Styles** ׳’ג‚¬ג€ Shared design effects.
+- **Utils** ׳’ג‚¬ג€ Code generation, formatting, exporting, storage, and logging.
+
+The application uses React Context and Reducer for workspace state management, with LocalStorage for browser-based persistence.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js
-- npm
+The project was developed and tested with:
+
+- Node.js 24.18.0
+- npm 11.16.0
+- Git
+
+Compatible versions of Node.js and npm are required to install and run the project.
 
 ### Installation
 
-Clone the repository:
+**1. Clone the repository**
 
 ```bash
 git clone https://github.com/hanasolomon86-jpg/stylelab.git
+```
+
+**2. Navigate to the project directory**
+
+```bash
 cd stylelab
 ```
 
-Install dependencies:
+**3. Install dependencies**
 
 ```bash
-npm install
+npm ci
 ```
 
-Start the development server:
+`npm ci` installs the exact dependency versions recorded in `package-lock.json`.
+
+**4. Start the development server**
 
 ```bash
 npm run dev
 ```
 
 Open the local URL displayed in the terminal.
+
+The default Vite development address is:
+
+```text
+http://localhost:5173/
+```
 
 ## Available Scripts
 
@@ -71,49 +239,135 @@ Open the local URL displayed in the terminal.
 | `npm run build`         | Build the application for production     |
 | `npm run preview`       | Preview the production build             |
 | `npm run lint`          | Run ESLint                               |
-| `npm run test`          | Run automated tests                      |
+| `npm run test -- --run` | Run all automated tests once             |
 | `npm run test:watch`    | Run tests in watch mode                  |
 | `npm run test:coverage` | Run tests and generate a coverage report |
 
 ## Testing
 
-StyleLab uses Vitest and React Testing Library for automated testing.
+StyleLab uses Vitest and React Testing Library.
 
-The test environment includes:
+The automated test suite covers:
 
-- Vitest
-- jsdom
-- React Testing Library
-- user-event
-- jest-dom
-- V8 Coverage
+- Application routing.
+- Component rendering and customization.
+- Workspace state management.
+- LocalStorage persistence and validation.
+- Image Gallery selection.
+- Code generation in all supported formats.
+- Code formatting.
+- Copy and Export operations.
+- Logging behavior.
 
-To run the tests:
+Run all tests once:
 
 ```bash
-npm run test
+npm run test -- --run
 ```
 
-To generate a coverage report:
+Generate a Code Coverage report:
 
 ```bash
 npm run test:coverage
 ```
 
-The HTML coverage report is generated in the `coverage` directory.
+The coverage report is generated in the `coverage/` directory.
+
+## Code Quality
+
+Run ESLint:
+
+```bash
+npm run lint
+```
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+Check dependencies for known security vulnerabilities:
+
+```bash
+npm audit
+```
+
+## Workspace Storage
+
+StyleLab uses the browser's LocalStorage API to persist workspace data.
+
+The workspace is stored under the following key:
+
+```text
+stylelab-workspace
+```
+
+The storage utility is responsible for:
+
+- Loading saved workspace data.
+- Validating the workspace structure.
+- Validating supported style properties and values.
+- Normalizing stored component styles.
+- Saving workspace changes.
+- Handling storage errors.
+
+Workspace data is stored locally in the browser and is not synchronized between devices or users.
+
+## Logging
+
+StyleLab includes a lightweight frontend logging utility located at:
+
+```text
+src/utils/logger.js
+```
+
+It supports three logging levels:
+
+- `info` ׳’ג‚¬ג€ Important application events.
+- `warn` ׳’ג‚¬ג€ Warnings and invalid data conditions.
+- `error` ׳’ג‚¬ג€ Application errors.
+
+Log messages use the `[StyleLab]` prefix and are written to the browser console.
+
+Logging is used for events such as:
+
+- Workspace loading and saving failures.
+- Code formatting failures.
+- Syntax highlighting failures.
+- Copy and Export operations.
+
+The logging utility does not send data to an external monitoring service and does not log workspace content or generated code.
+
+## Known Limitations
+
+- Workspace data is stored locally in the browser; there is no cloud synchronization.
+- The application does not include a backend or user authentication.
+- The built-in image gallery contains a predefined collection of six images.
+- Generated code is provided as a starting point and may require adjustments to match the destination project's environment and dependencies.
+- Logging is limited to the browser console; external monitoring and centralized log storage are not included.
 
 ## Development Workflow
 
 The project uses Git and GitHub for version control and task management.
 
-Development workflow:
+The development workflow includes:
 
 1. Create a dedicated branch for each task.
 2. Implement the changes.
 3. Run automated tests and quality checks.
 4. Open a Pull Request.
-5. Review the changes before merging into `main`.
+5. Verify CI results and review the changes.
+6. Merge approved changes into `main`.
+
+GitHub Actions is used for Continuous Integration (CI).
 
 ## Repository
 
-[GitHub - StyleLab](https://github.com/hanasolomon86-jpg/stylelab)
+[GitHub ׳’ג‚¬ג€ StyleLab](https://github.com/hanasolomon86-jpg/stylelab)
