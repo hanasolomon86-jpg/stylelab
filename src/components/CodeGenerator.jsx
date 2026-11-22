@@ -11,6 +11,7 @@ import {
 
 import { copyCodeToClipboard, exportCode } from "../utils/codeExport";
 import { formatGeneratedCode } from "../utils/formatGeneratedCode";
+import { logger } from "../utils/logger";
 
 import "./CodeGenerator.css";
 
@@ -66,11 +67,15 @@ function CodeGeneratorActions({
     try {
       await copyCodeToClipboard(generatedCode);
 
+      logger.info("Code copied successfully.");
+
       setFeedback({
         type: "success",
         message: "Code copied successfully!",
       });
     } catch {
+      logger.error("Failed to copy generated code.");
+
       setFeedback({
         type: "error",
         message:
@@ -89,11 +94,15 @@ function CodeGeneratorActions({
         format,
       });
 
+      logger.info("Code exported successfully.");
+
       setFeedback({
         type: "success",
         message: `Code exported successfully as ${result.fileName}.`,
       });
     } catch {
+      logger.error("Failed to export generated code.");
+
       setFeedback({
         type: "error",
         message: "Unable to export code. Please try again.",
@@ -197,10 +206,10 @@ function CodeGenerator({ componentId, componentData }) {
           });
         }
       })
-      .catch((error) => {
-        console.error("Unable to format generated code:", error);
-
+      .catch(() => {
         if (isCurrent) {
+          logger.warn("Unable to format generated code.");
+
           setFormattedResult({
             source: generatedCode,
             code: generatedCode,
@@ -223,9 +232,9 @@ function CodeGenerator({ componentId, componentData }) {
         if (isCurrent && codeRef.current) {
           Prism.highlightElement(codeRef.current);
         }
-      } catch (error) {
+      } catch {
         if (isCurrent) {
-          console.error("Unable to highlight generated code:", error);
+          logger.error("Unable to highlight generated code.");
         }
       }
     }

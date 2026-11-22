@@ -10,6 +10,8 @@ import CodeGenerator from "./CodeGenerator";
 
 import * as formatCodeModule from "../utils/formatGeneratedCode";
 
+import { logger } from "../utils/logger";
+
 const { copyCodeToClipboardMock, exportCodeMock } = vi.hoisted(() => ({
   copyCodeToClipboardMock: vi.fn(),
   exportCodeMock: vi.fn(),
@@ -291,9 +293,7 @@ describe("CodeGenerator component", () => {
       .spyOn(formatCodeModule, "formatGeneratedCode")
       .mockRejectedValueOnce(formattingError);
 
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+    const loggerWarnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
 
     renderCodeGenerator();
 
@@ -301,13 +301,12 @@ describe("CodeGenerator component", () => {
 
     expect(codeElement).toHaveTextContent("GeneratedButton");
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Unable to format generated code:",
-      formattingError,
+    expect(loggerWarnSpy).toHaveBeenCalledWith(
+      "Unable to format generated code.",
     );
 
     formatSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
+    loggerWarnSpy.mockRestore();
   });
 
   it("ignores stale formatting results after component data changes", async () => {
@@ -376,9 +375,7 @@ describe("CodeGenerator component", () => {
       )
       .mockResolvedValueOnce("formatted latest code");
 
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+    const loggerWarnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
 
     const { rerender } = renderCodeGenerator({
       componentId: "button",
@@ -402,12 +399,9 @@ describe("CodeGenerator component", () => {
     expect(codeElement).toHaveAttribute("aria-busy", "false");
     expect(codeElement).toHaveTextContent("formatted latest code");
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Unable to format generated code:",
-      staleError,
-    );
+    expect(loggerWarnSpy).not.toHaveBeenCalled();
 
     formatSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
+    loggerWarnSpy.mockRestore();
   });
 });

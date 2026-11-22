@@ -6,6 +6,8 @@ import {
     isValidStyleProperty,
 } from "../reducers/workspaceReducer";
 
+import { logger } from "./logger";
+
 export const WORKSPACE_STORAGE_KEY = "stylelab-workspace";
 
 function isObject(value) {
@@ -91,6 +93,7 @@ export function loadWorkspace(storage) {
         const parsedWorkspace = JSON.parse(savedWorkspace);
 
         if (!isValidWorkspace(parsedWorkspace)) {
+            logger.warn("Saved workspace has an invalid structure.");
             return createInitialWorkspace();
         }
 
@@ -119,6 +122,7 @@ export function loadWorkspace(storage) {
             ),
         };
     } catch {
+        logger.error("Failed to load workspace from browser storage.");
         return createInitialWorkspace();
     }
 }
@@ -128,6 +132,7 @@ export function saveWorkspace(workspace, storage) {
         const storageTarget = storage ?? window.localStorage;
 
         if (!isValidWorkspace(workspace)) {
+            logger.warn("Workspace validation failed during save.");
             return false;
         }
 
@@ -154,6 +159,7 @@ export function saveWorkspace(workspace, storage) {
 
         return true;
     } catch {
+        logger.error("Failed to save workspace to browser storage.");
         return false;
     }
 }
