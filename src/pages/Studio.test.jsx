@@ -553,6 +553,57 @@ describe("Studio workspace", () => {
     });
   });
 
+  it("updates the preview and persists the selected design effect", async () => {
+    const user = userEvent.setup();
+
+    const { container } = renderStudio();
+
+    await user.click(screen.getByRole("button", { name: "Effects" }));
+
+    const effectSelect = screen.getByLabelText("Select design effect");
+    const previewStage = container.querySelector(".preview-stage");
+
+    expect(effectSelect).toHaveValue("none");
+    expect(previewStage).toHaveClass("preview-stage--none");
+
+    await user.selectOptions(effectSelect, "glassmorphism");
+
+    expect(effectSelect).toHaveValue("glassmorphism");
+    expect(previewStage).toHaveClass("preview-stage--glassmorphism");
+
+    const savedWorkspace = JSON.parse(
+      localStorage.getItem(WORKSPACE_STORAGE_KEY),
+    );
+
+    expect(savedWorkspace.components.card.designEffect).toBe("glassmorphism");
+  });
+
+  it("switches the Live Preview background between Dark and Light", async () => {
+    const user = userEvent.setup();
+
+    const { container } = renderStudio();
+
+    const darkButton = screen.getByRole("button", { name: "Dark" });
+    const lightButton = screen.getByRole("button", { name: "Light" });
+    const previewCanvas = container.querySelector(".preview-canvas");
+
+    expect(darkButton).toHaveAttribute("aria-pressed", "true");
+    expect(lightButton).toHaveAttribute("aria-pressed", "false");
+    expect(previewCanvas).toHaveClass("preview-canvas--dark");
+
+    await user.click(lightButton);
+
+    expect(lightButton).toHaveAttribute("aria-pressed", "true");
+    expect(darkButton).toHaveAttribute("aria-pressed", "false");
+    expect(previewCanvas).toHaveClass("preview-canvas--light");
+
+    await user.click(darkButton);
+
+    expect(darkButton).toHaveAttribute("aria-pressed", "true");
+    expect(lightButton).toHaveAttribute("aria-pressed", "false");
+    expect(previewCanvas).toHaveClass("preview-canvas--dark");
+  });
+
   it("supports zero and prevents negative numeric style values", async () => {
     const user = userEvent.setup();
 
