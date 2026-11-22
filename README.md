@@ -403,6 +403,19 @@ The development workflow includes:
 
 GitHub Actions is used for Continuous Integration (CI).
 
+
+## Version
+
+Current version: **1.0.0**
+
+## License
+
+The original StyleLab source code is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+The MIT License applies to the original StyleLab source code only. It does not apply to the images located in `public/images/gallery/`, whose original sources and licensing terms have not been independently verified.
+
+Third-party npm dependencies are distributed under their respective licenses. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for the dependency license inventory and additional notices.
+
 ## Repository
 
 [GitHub - StyleLab](https://github.com/hanasolomon86-jpg/stylelab)
