@@ -16,9 +16,9 @@ The application is designed to make component styling more accessible and effici
 
 ### Component Customization
 
-- **Card** ׳’ג‚¬ג€ Customize title, description, image, and image layout.
-- **Button** ׳’ג‚¬ג€ Customize button text and appearance.
-- **Input** ׳’ג‚¬ג€ Customize label, placeholder, and appearance.
+- **Card** - Customize title, description, image, and image layout.
+- **Button** - Customize button text and appearance.
+- **Input** - Customize label, placeholder, and appearance.
 
 ### Design Customization
 
@@ -44,9 +44,9 @@ The application is designed to make component styling more accessible and effici
 
 Generate reusable component code in three formats:
 
-- **JSX** ׳’ג‚¬ג€ React component with a corresponding CSS file.
-- **CSS** ׳’ג‚¬ג€ Standalone CSS styles.
-- **Tailwind CSS** ׳’ג‚¬ג€ React component using Tailwind utility classes.
+- **JSX** - React component with a corresponding CSS file.
+- **CSS** - Standalone CSS styles.
+- **Tailwind CSS** - React component using Tailwind utility classes.
 
 Additional capabilities:
 
@@ -95,6 +95,7 @@ Additional capabilities:
 </p>
 
 </details>
+
 ## Technology Stack
 
 | Technology            | Purpose                                 |
@@ -117,69 +118,69 @@ Additional capabilities:
 
 ```text
 stylelab/
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ public/
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ images/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ gallery/
-׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ favicon.svg
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ docs/
-׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ screenshots/
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ home.png
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ studio.png
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ controls.png
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ card-gallery.png
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ button.png
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ input.png
-׳’ג€ג€       ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ code-generator.png
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ src/
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ components/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ Button.jsx
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ Card.jsx
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ CodeGenerator.jsx
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ ImageGallery.jsx
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ Input.jsx
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ context/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ WorkspaceContext.jsx
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ data/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ imageGallery.js
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ hooks/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ useWorkspace.js
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ pages/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ Home.jsx
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ Studio.jsx
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ NotFound.jsx
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ reducers/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ workspaceReducer.js
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ styles/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ designEffects.css
-׳’ג€ג€   ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ test/
-׳’ג€ג€   ׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ setup.js
-׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ utils/
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ codeExport.js
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ codeGenerator.js
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ formatGeneratedCode.js
-׳’ג€ג€       ׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ logger.js
-׳’ג€ג€       ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ workspaceStorage.js
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ .github/
-׳’ג€ג€   ׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ workflows/
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ .gitignore
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ eslint.config.js
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ index.html
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ package.json
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ package-lock.json
-׳’ג€ֲ׳’ג€ג‚¬׳’ג€ג‚¬ vite.config.js
-׳’ג€ג€׳’ג€ג‚¬׳’ג€ג‚¬ README.md
+|-- public/
+|   |-- images/
+|   |   `-- gallery/
+|   `-- favicon.svg
+|-- docs/
+|   `-- screenshots/
+|       |-- home.png
+|       |-- studio.png
+|       |-- controls.png
+|       |-- card-gallery.png
+|       |-- button.png
+|       |-- input.png
+|       `-- code-generator.png
+|-- src/
+|   |-- components/
+|   |   |-- Button.jsx
+|   |   |-- Card.jsx
+|   |   |-- CodeGenerator.jsx
+|   |   |-- ImageGallery.jsx
+|   |   `-- Input.jsx
+|   |-- context/
+|   |   `-- WorkspaceContext.jsx
+|   |-- data/
+|   |   `-- imageGallery.js
+|   |-- hooks/
+|   |   `-- useWorkspace.js
+|   |-- pages/
+|   |   |-- Home.jsx
+|   |   |-- Studio.jsx
+|   |   `-- NotFound.jsx
+|   |-- reducers/
+|   |   `-- workspaceReducer.js
+|   |-- styles/
+|   |   `-- designEffects.css
+|   |-- test/
+|   |   `-- setup.js
+|   `-- utils/
+|       |-- codeExport.js
+|       |-- codeGenerator.js
+|       |-- formatGeneratedCode.js
+|       |-- logger.js
+|       `-- workspaceStorage.js
+|-- .github/
+|   `-- workflows/
+|-- .gitignore
+|-- eslint.config.js
+|-- index.html
+|-- package.json
+|-- package-lock.json
+|-- vite.config.js
+`-- README.md
 ```
 
 ### Architecture Overview
 
-- **Components** ׳’ג‚¬ג€ Reusable UI components and the Code Generator.
-- **Pages** ׳’ג‚¬ג€ Home, Studio, and Not Found views.
-- **Context** ׳’ג‚¬ג€ Shared workspace state.
-- **Hooks** ׳’ג‚¬ג€ Reusable workspace logic.
-- **Reducers** ׳’ג‚¬ג€ Workspace state updates and validation.
-- **Data** ׳’ג‚¬ג€ Built-in image gallery definitions.
-- **Styles** ׳’ג‚¬ג€ Shared design effects.
-- **Utils** ׳’ג‚¬ג€ Code generation, formatting, exporting, storage, and logging.
+- **Components** - Reusable UI components and the Code Generator.
+- **Pages** - Home, Studio, and Not Found views.
+- **Context** - Shared workspace state.
+- **Hooks** - Reusable workspace logic.
+- **Reducers** - Workspace state updates and validation.
+- **Data** - Built-in image gallery definitions.
+- **Styles** - Shared design effects.
+- **Utils** - Code generation, formatting, exporting, storage, and logging.
 
 The application uses React Context and Reducer for workspace state management, with LocalStorage for browser-based persistence.
 
@@ -330,9 +331,9 @@ src/utils/logger.js
 
 It supports three logging levels:
 
-- `info` ׳’ג‚¬ג€ Important application events.
-- `warn` ׳’ג‚¬ג€ Warnings and invalid data conditions.
-- `error` ׳’ג‚¬ג€ Application errors.
+- `info` - Important application events.
+- `warn` - Warnings and invalid data conditions.
+- `error` - Application errors.
 
 Log messages use the `[StyleLab]` prefix and are written to the browser console.
 
@@ -370,4 +371,4 @@ GitHub Actions is used for Continuous Integration (CI).
 
 ## Repository
 
-[GitHub ׳’ג‚¬ג€ StyleLab](https://github.com/hanasolomon86-jpg/stylelab)
+[GitHub - StyleLab](https://github.com/hanasolomon86-jpg/stylelab)
