@@ -2,7 +2,11 @@
 
 _Design. Preview. Generate._
 
+[Live Demo](https://stylelab-tau.vercel.app/) | [GitHub Repository](https://github.com/hanasolomon86-jpg/stylelab)
+
 StyleLab is a visual UI component design studio built with React. It allows developers and UI designers to customize reusable UI components, preview their appearance in real time, and generate code ready to use in their projects.
+
+The application is deployed on Vercel and is publicly available through the Live Demo link.
 
 ## Overview
 
@@ -103,6 +107,7 @@ Additional capabilities:
 | React 19              | Component-based UI development          |
 | JavaScript            | Application logic                       |
 | Vite 8                | Development server and production build |
+| Vercel                | Production deployment and hosting       |
 | React Router 7        | Client-side navigation                  |
 | Tailwind CSS 4        | Utility-first styling                   |
 | CSS                   | Component styling and design effects    |
@@ -299,6 +304,35 @@ Check dependencies for known security vulnerabilities:
 ```bash
 npm audit
 ```
+
+## Deployment
+
+StyleLab is deployed on Vercel and is publicly available.
+
+**Live Application:** https://stylelab-tau.vercel.app/
+
+Deployment Configuration:
+
+- Hosting Platform: Vercel (Hobby).
+- Framework Preset: Vite.
+- Build Command: `npm run build`.
+- Output Directory: `dist`.
+- SPA Routing: Configured using `vercel.json` rewrites to support client-side navigation and direct access to application routes.
+
+Production Verification:
+
+The production deployment was tested on desktop and mobile devices.
+
+The following functionality was verified:
+
+- Home and Studio page loading.
+- Navigation between application routes.
+- Direct access to and refreshing internal routes.
+- Component customization and live preview.
+- Design effects and interaction states.
+- Code generation in JSX, CSS, and Tailwind CSS formats.
+- Copy and Export functionality.
+- Workspace persistence using browser LocalStorage.
 
 ## Workspace Storage
 
